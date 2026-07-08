@@ -32,6 +32,7 @@ flowchart LR
 python examples/full_tour/code.py
 
 # 真实 provider：需要 .env 里有对应 key。
+python examples/full_tour/code.py --provider deepseek
 python examples/full_tour/code.py --provider anthropic
 python examples/full_tour/code.py --provider openai
 
@@ -66,4 +67,4 @@ python examples/full_tour/code.py --home /tmp/tour
 
 CI 和无 key 读者也必须能跑完整链路。离线 mock provider 是一个脚本化的工具调用 agent：列工具、跑 `pwd`、读 README、总结。它不模拟任何真实模型的“智力”，只用来证明 harness plumbing 是通的。
 
-需要真实模型时，加 `--provider anthropic|openai` 即可复用同一条 loop。
+需要真实模型时，加 `--provider deepseek|anthropic|openai` 即可复用同一条 loop。

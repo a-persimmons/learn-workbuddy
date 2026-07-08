@@ -188,6 +188,17 @@ def run_offline_demos() -> None:
             raise SystemExit("Mini demo output missing markers: " + ", ".join(missing))
 
 
+def run_chapter_demo_smokes() -> None:
+    for script in sorted(ROOT.glob("s[0-9][0-9]_*/code.py")):
+        out = run_capture(
+            [sys.executable, script.relative_to(ROOT).as_posix(), "--demo"],
+            env={"WORKBUDDY_HOME": tempfile.mkdtemp(prefix="learn-workbuddy-demo-home-")},
+            timeout=10,
+        )
+        if "本章 demo 完成" not in out:
+            raise SystemExit(f"Chapter demo missing completion marker: {script.relative_to(ROOT)}")
+
+
 def run_interactive_smokes() -> None:
     scripts = [
         "s03_deferred_loading/code.py",
@@ -424,6 +435,7 @@ def main() -> None:
     check_lesson_interactivity()
     check_svg_integrity()
     run_offline_demos()
+    run_chapter_demo_smokes()
     run_interactive_smokes()
     run_http_smoke()
     check_clean_room_scan()

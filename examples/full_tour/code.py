@@ -11,13 +11,15 @@ tour shows how the *layers* fit together:
     -> HTTP /run endpoint (ACP-like) -> audit hash chain + verify
 
 It runs offline by default (deterministic mock provider, no key, no network)
-and can run against a real provider with --provider anthropic|openai. Every
-stage prints a one-line explanation before it acts, so the transcript reads
+and can run against a real provider with --provider deepseek|anthropic|openai|openai-chat.
+Every stage prints a one-line explanation before it acts, so the transcript reads
 like a guided tour rather than a log dump.
 
 Usage:
     python examples/full_tour/code.py                     # offline
+    python examples/full_tour/code.py --provider deepseek # real (needs key)
     python examples/full_tour/code.py --provider openai   # real (needs key)
+    python examples/full_tour/code.py --provider openai-chat
     python examples/full_tour/code.py --home /tmp/tour     # choose output dir
 
 Exit code is 0 only if every stage succeeded AND the audit chain verifies.
@@ -197,10 +199,15 @@ def run_tour(home: Path, provider_name: str | None) -> dict:
 
 
 def main() -> None:
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+    except Exception:
+        pass
     parser = argparse.ArgumentParser(description="Mini WorkBuddy full tour")
     parser.add_argument(
         "--provider",
-        choices=["anthropic", "openai", "offline"],
+        choices=["anthropic", "deepseek", "openai", "openai-chat", "offline"],
         default=None,
         help="model backend (default: PROVIDER env or auto -> offline without keys)",
     )

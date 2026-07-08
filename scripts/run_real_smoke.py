@@ -7,11 +7,14 @@ stack works against a live provider, across both the lesson entrypoints and
 the mini harness demo.
 
 Usage:
-    # Anthropic (needs ANTHROPIC_API_KEY + MODEL_ID)
-    python scripts/run_real_smoke.py
+    # DeepSeek (needs DEEPSEEK_API_KEY)
+    python scripts/run_real_smoke.py --provider deepseek
 
     # OpenAI (needs OPENAI_API_KEY, optional OPENAI_MODEL)
     python scripts/run_real_smoke.py --provider openai
+
+    # OpenAI-compatible Chat Completions gateway
+    python scripts/run_real_smoke.py --provider openai-chat
 
     # Pick which targets to run (default: mini)
     python scripts/run_real_smoke.py --targets mini s01 s24
@@ -33,13 +36,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _load_env() -> None:
+    try:
+        from dotenv import load_dotenv
+    except Exception:
+        return
+    load_dotenv(ROOT / ".env", override=True)
+
+
 def _provider_ready(provider: str) -> tuple[bool, str]:
     if provider == "anthropic":
         ok = bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("MODEL_ID"))
         return ok, "ANTHROPIC_API_KEY and MODEL_ID"
+    if provider == "deepseek":
+        ok = bool(os.getenv("DEEPSEEK_API_KEY"))
+        return ok, "DEEPSEEK_API_KEY"
     if provider == "openai":
         ok = bool(os.getenv("OPENAI_API_KEY"))
         return ok, "OPENAI_API_KEY"
+    if provider == "openai-chat":
+        ok = bool(os.getenv("OPENAI_CHAT_API_KEY") or os.getenv("OPENAI_API_KEY"))
+        return ok, "OPENAI_CHAT_API_KEY or OPENAI_API_KEY"
     return False, provider
 
 
@@ -64,16 +81,17 @@ def smoke_mini(provider: str) -> int:
 def smoke_lesson(script: str, provider: str) -> int:
     """Drive an interactive lesson with one prompt then quit.
 
-    Lessons read the Anthropic env directly (they predate the adapter), so
-    the lesson targets only apply to --provider anthropic. For openai, the
-    mini demo is the real-call target.
+    Lessons read the Anthropic-compatible env directly. DeepSeek works
+    because every lesson now accepts --provider deepseek and maps it to
+    DeepSeek's Anthropic-compatible endpoint. OpenAI Responses is available
+    through the mini provider adapter, not these early chapter scripts.
     """
-    if provider != "anthropic":
+    if provider in {"openai", "openai-chat"}:
         print(f"[skip] {script}: lesson entrypoints use the Anthropic env; "
-              f"use --provider anthropic to smoke them.")
+              f"use --provider anthropic/deepseek to smoke them.")
         return 0
     prompt = "List the files in the current directory, then say DONE.\nq\n"
-    return _run([sys.executable, script], stdin=prompt)
+    return _run([sys.executable, script, "--provider", provider], stdin=prompt)
 
 
 TARGETS = {
@@ -84,8 +102,9 @@ TARGETS = {
 
 
 def main() -> None:
+    _load_env()
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
+    parser.add_argument("--provider", choices=["anthropic", "deepseek", "openai", "openai-chat"], default="deepseek")
     parser.add_argument("--targets", nargs="+", default=["mini"],
                         choices=sorted(TARGETS), help="which smokes to run")
     args = parser.parse_args()

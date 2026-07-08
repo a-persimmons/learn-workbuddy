@@ -24,6 +24,8 @@ This map turns a curated resource list into a reading path for this tutorial. Th
 | Read This | Why It Helps | Related Chapters |
 |---|---|---|
 | [Anthropic: Writing effective tools for agents](https://www.anthropic.com/engineering/writing-tools-for-agents) | Tool schema design and affordances. | s02, s03, s17 |
+| [DeepSeek API docs](https://api-docs.deepseek.com/) | DeepSeek key setup and compatible API entrypoints used by the learning path. | README, provider appendix |
+| [DeepSeek Anthropic-compatible guide](https://api-docs.deepseek.com/guides/anthropic_api) | Lets the early Anthropic-style lesson scripts run with a DeepSeek key. | s01-s24 |
 | [OpenAI: Responses API overview](https://developers.openai.com/api/reference/responses/overview/) | Direct model interface for stateful interactions, tools, function calling, and built-in capabilities. | s01, s02, s24 |
 | [OpenAI: Function calling](https://developers.openai.com/api/docs/guides/function-calling) | Tool-call flow and `function_call_output` shape used by the OpenAI provider adapter. | s02, provider appendix |
 | [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) | Higher-level runtime for managed turns, tools, guardrails, handoffs, sessions, and tracing. Useful as a contrast to owning the loop. | provider appendix, future |

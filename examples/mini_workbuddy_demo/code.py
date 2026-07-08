@@ -120,9 +120,16 @@ def run_offline_demo() -> None:
     print("Audit verified:", audit.verify())
 
 
-def api_env_ready() -> bool:
+def api_env_ready(provider_name: str | None = None) -> bool:
     load_dotenv(override=True)
-    return bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("MODEL_ID"))
+    from mini_workbuddy import providers as P
+
+    choice = (provider_name or os.getenv("PROVIDER") or "auto").lower()
+    if choice == "auto":
+        return any(P.provider_env_ready(name) for name in ("anthropic", "deepseek", "openai", "openai-chat"))
+    if choice == "offline":
+        return False
+    return P.provider_env_ready(choice)
 
 
 def run_real_api_demo(prompt: str, max_turns: int = 8, provider_name: str | None = None) -> None:
@@ -133,8 +140,8 @@ def run_real_api_demo(prompt: str, max_turns: int = 8, provider_name: str | None
     from mini_workbuddy import providers as P
 
     # Resolve the provider. --provider (or PROVIDER env) picks anthropic /
-    # openai / offline; the loop below is identical for all of them because
-    # the adapter normalizes tool_use vs function_call into one shape.
+    # deepseek / openai / offline; the loop below is identical for all of
+    # them because the adapter normalizes tool_use vs function_call into one shape.
     provider = P.select_provider(provider_name)
     if provider.name == "offline":
         print("No real provider key found; falling back to the offline mock provider.")
@@ -170,7 +177,7 @@ def run_real_api_demo(prompt: str, max_turns: int = 8, provider_name: str | None
         model_turn = provider.create(
             P.ProviderRequest(system=system, messages=messages, tools=spec, max_tokens=4000)
         )
-        messages.append(model_turn.raw_assistant)
+        P.append_provider_message(messages, model_turn.raw_assistant)
 
         if model_turn.text:
             final_text = model_turn.text
@@ -200,7 +207,7 @@ def run_real_api_demo(prompt: str, max_turns: int = 8, provider_name: str | None
                 print("Externalized:", result.externalized_path)
             results.append((call, result.content))
 
-        messages.append(provider.format_tool_results(results))
+        P.append_provider_message(messages, provider.format_tool_results(results))
     else:
         print("\nReached max turns before the model stopped calling tools.")
 
@@ -230,13 +237,13 @@ def main() -> None:
         "--mode",
         choices=["auto", "offline", "real"],
         default="auto",
-        help="auto uses real API when ANTHROPIC_API_KEY and MODEL_ID exist, otherwise offline",
+        help="auto uses a configured provider key when present, otherwise offline",
     )
     parser.add_argument("--prompt", default=REAL_API_PROMPT, help="prompt for --mode real")
     parser.add_argument("--max-turns", type=int, default=8)
     parser.add_argument(
         "--provider",
-        choices=["anthropic", "openai", "offline"],
+        choices=["anthropic", "deepseek", "openai", "openai-chat", "offline"],
         default=None,
         help="model backend for --mode real (default: PROVIDER env or auto-detect)",
     )
@@ -248,24 +255,25 @@ def main() -> None:
         return
     if args.mode == "real":
         # Backward-compatible guard: `--mode real` with no explicit provider
-        # and no Anthropic keys keeps the original clear error (a documented
-        # contract). Use --provider openai/offline to take other paths.
-        if args.provider is None and not os.getenv("PROVIDER") and not api_env_ready():
+        # and no provider keys keeps a clear error. Use --provider offline
+        # for the deterministic path.
+        if args.provider is None and not os.getenv("PROVIDER") and not api_env_ready(args.provider):
             raise SystemExit(
-                "Real API demo requires ANTHROPIC_API_KEY and MODEL_ID. "
-                "Copy .env.example to .env, fill them, then rerun with --mode real. "
-                "(Or pick a backend explicitly: --provider openai | offline.)"
+                "Real API demo requires a provider key. Copy .env.example to .env, "
+                "then fill DEEPSEEK_API_KEY, or ANTHROPIC_API_KEY + MODEL_ID, "
+                "or OPENAI_API_KEY / OPENAI_CHAT_API_KEY. "
+                "(Or pick a backend explicitly: --provider deepseek | openai-chat | openai | offline.)"
             )
         run_real_api_demo(args.prompt, args.max_turns, args.provider)
         return
-    if api_env_ready():
+    if api_env_ready(args.provider):
         run_real_api_demo(args.prompt, args.max_turns, args.provider)
         return
 
-    print("Mode: auto -> no ANTHROPIC_API_KEY/MODEL_ID found, running offline deterministic harness.")
+    print("Mode: auto -> no provider key found, running offline deterministic harness.")
     print("For the real API path: cp .env.example .env, fill it, then run:")
-    print("  python3 examples/mini_workbuddy_demo/code.py --mode real")
-    print("  (dual provider: add --provider openai to use the OpenAI Responses API)\n")
+    print("  python3 examples/mini_workbuddy_demo/code.py --mode real --provider deepseek")
+    print("  (or add --provider openai-chat for an OpenAI-compatible gateway)\n")
     run_offline_demo()
 
 

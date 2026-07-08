@@ -65,7 +65,7 @@ def test_real_api_demo_requires_api_key(root: Path, tmp_path: Path) -> None:
         timeout=10,
     )
     assert result.returncode != 0
-    assert "Real API demo requires ANTHROPIC_API_KEY and MODEL_ID" in result.stdout
+    assert "Real API demo requires a provider key" in result.stdout
 
 
 def test_api_backed_lessons_are_documented_but_not_required_in_ci(root: Path) -> None:
@@ -86,6 +86,44 @@ def test_all_lesson_scripts_have_interactive_entrypoints(root: Path) -> None:
         if "input(" not in text:
             missing.append(path.relative_to(root).as_posix())
     assert missing == []
+
+
+def test_all_lesson_scripts_have_keyless_demo_entrypoints(root: Path, tmp_path: Path) -> None:
+    failures: list[str] = []
+    for script in sorted(root.glob("s[0-9][0-9]_*/code.py")):
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(root)
+        env["WORKBUDDY_HOME"] = str(tmp_path / "wb")
+        result = subprocess.run(
+            [sys.executable, str(script.relative_to(root)), "--demo"],
+            cwd=root,
+            env=env,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=10,
+        )
+        if result.returncode != 0 or "本章 demo 完成" not in result.stdout:
+            failures.append(f"{script.parent.name}:\n{result.stdout[-1200:]}")
+    assert failures == []
+
+
+def test_chapter_provider_deepseek_is_accepted_before_key_check(root: Path, tmp_path: Path) -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(root)
+    env["DEEPSEEK_API_KEY"] = "ds-test"
+    env["WORKBUDDY_HOME"] = str(tmp_path / "wb")
+    result = subprocess.run(
+        [sys.executable, "s01_agent_loop/code.py", "--provider", "deepseek", "--demo"],
+        cwd=root,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stdout[-2000:]
+    assert "python3 s01_agent_loop/code.py --provider deepseek" in result.stdout
 
 
 @pytest.mark.parametrize(

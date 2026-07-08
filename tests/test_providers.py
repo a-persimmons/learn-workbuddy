@@ -33,7 +33,19 @@ from mini_workbuddy.tools import ToolRegistry
 
 @pytest.fixture(autouse=True)
 def clean_provider_env(monkeypatch):
-    for key in ["PROVIDER", "ANTHROPIC_API_KEY", "MODEL_ID", "OPENAI_API_KEY", "OPENAI_MODEL"]:
+    for key in [
+        "PROVIDER",
+        "ANTHROPIC_API_KEY",
+        "MODEL_ID",
+        "DEEPSEEK_API_KEY",
+        "DEEPSEEK_MODEL",
+        "DEEPSEEK_BASE_URL",
+        "OPENAI_API_KEY",
+        "OPENAI_MODEL",
+        "OPENAI_CHAT_API_KEY",
+        "OPENAI_CHAT_BASE_URL",
+        "OPENAI_CHAT_MODEL",
+    ]:
         monkeypatch.delenv(key, raising=False)
     yield
 
@@ -62,6 +74,41 @@ def test_auto_uses_openai_when_only_openai_key(monkeypatch):
     assert P.select_provider().name == "openai"
 
 
+def test_explicit_openai_chat_uses_gateway_env(monkeypatch):
+    monkeypatch.setenv("OPENAI_CHAT_API_KEY", "gw-test")
+    monkeypatch.setenv("OPENAI_CHAT_BASE_URL", "http://127.0.0.1:8080/v1")
+    monkeypatch.setenv("OPENAI_CHAT_MODEL", "gateway-model")
+    provider = P.OpenAIChatProvider()
+    assert provider.name == "openai-chat"
+    assert provider.base_url == "http://127.0.0.1:8080/v1"
+    assert provider.model == "gateway-model"
+
+
+def test_auto_prefers_deepseek_before_openai_when_deepseek_key_present(monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "ds-test")
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-test")
+    monkeypatch.setattr(P.DeepSeekProvider, "__init__", lambda self: setattr(self, "model", "deepseek-v4-pro"))
+    assert P.select_provider().name == "deepseek"
+
+
+def test_deepseek_provider_maps_to_anthropic_compatible_endpoint(monkeypatch):
+    captured = {}
+
+    def fake_init(self, model=None, base_url=None, api_key=None):
+        captured.update({"model": model, "base_url": base_url, "api_key": api_key})
+        self.model = model
+
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "ds-test")
+    monkeypatch.setattr(P.AnthropicProvider, "__init__", fake_init)
+    provider = P.DeepSeekProvider()
+    assert provider.name == "deepseek"
+    assert captured == {
+        "model": "deepseek-v4-pro",
+        "base_url": "https://api.deepseek.com/anthropic",
+        "api_key": "ds-test",
+    }
+
+
 def test_named_provider_without_keys_exits_cleanly(monkeypatch):
     with pytest.raises(SystemExit) as exc:
         P.select_provider("anthropic")
@@ -69,6 +116,12 @@ def test_named_provider_without_keys_exits_cleanly(monkeypatch):
     with pytest.raises(SystemExit) as exc2:
         P.select_provider("openai")
     assert "OPENAI_API_KEY" in str(exc2.value)
+    with pytest.raises(SystemExit) as exc3:
+        P.select_provider("deepseek")
+    assert "DEEPSEEK_API_KEY" in str(exc3.value)
+    with pytest.raises(SystemExit) as exc4:
+        P.select_provider("openai-chat")
+    assert "OPENAI_CHAT_API_KEY" in str(exc4.value) or "OPENAI_API_KEY" in str(exc4.value)
 
 
 def test_unknown_provider_exits():
@@ -93,6 +146,13 @@ def test_openai_tool_schema_shape(monkeypatch):
     assert tools[0].keys() == {"type", "name", "description", "parameters"}
 
 
+def test_openai_chat_tool_schema_shape():
+    prov = P.OpenAIChatProvider.__new__(P.OpenAIChatProvider)
+    tools = prov._tools(P.normalized_tools())
+    assert tools[0]["type"] == "function"
+    assert tools[0]["function"].keys() == {"name", "description", "parameters"}
+
+
 def test_result_formatting_differs_by_provider(monkeypatch):
     call = P.ToolCall(id="c1", name="bash", arguments={"command": "pwd"})
     anth = P.AnthropicProvider.__new__(P.AnthropicProvider)
@@ -104,6 +164,11 @@ def test_result_formatting_differs_by_provider(monkeypatch):
     o_out = oai.format_tool_results([(call, "/tmp")])
     assert o_out[0]["type"] == "function_call_output"
     assert o_out[0]["call_id"] == "c1"
+
+    chat = P.OpenAIChatProvider.__new__(P.OpenAIChatProvider)
+    c_out = chat.format_tool_results([(call, "/tmp")])
+    assert c_out[0]["role"] == "tool"
+    assert c_out[0]["tool_call_id"] == "c1"
 
 
 def test_anthropic_provider_parses_text_and_tool_use_blocks():
@@ -174,6 +239,39 @@ def test_openai_provider_handles_empty_output_without_crashing():
     turn = prov.create(P.ProviderRequest(system="sys", messages=[], tools=P.normalized_tools()))
     assert turn.text == ""
     assert turn.tool_calls == []
+
+
+def test_openai_chat_provider_parses_tool_calls(monkeypatch):
+    prov = P.OpenAIChatProvider.__new__(P.OpenAIChatProvider)
+    prov.model = "gateway-model"
+    prov.base_url = "http://example.test/v1"
+    prov.api_key = "secret"
+    monkeypatch.setattr(
+        prov,
+        "_post_json",
+        lambda path, payload: {
+            "choices": [{
+                "message": {
+                    "role": "assistant",
+                    "content": "I will inspect.",
+                    "tool_calls": [{
+                        "id": "call_1",
+                        "type": "function",
+                        "function": {
+                            "name": "bash",
+                            "arguments": json.dumps({"command": "pwd"}),
+                        },
+                    }],
+                }
+            }]
+        },
+    )
+
+    turn = prov.create(P.ProviderRequest(system="sys", messages=[], tools=P.normalized_tools()))
+    assert turn.text == "I will inspect."
+    assert turn.tool_calls == [
+        P.ToolCall(id="call_1", name="bash", arguments={"command": "pwd"})
+    ]
 
 
 # -- offline provider drives a full loop through the real harness -----------

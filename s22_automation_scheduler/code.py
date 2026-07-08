@@ -28,6 +28,17 @@ PROGRESSION = {'chapter': 's22_automation_scheduler',
  'builds_on': ['s21_sqlite_database'],
  'adds': ['RRULE scheduling', 'automation run history', 'runtime state table'],
  'preserves': ['SQLite persistence layer']}
+
+# Shared learning entrypoints: --demo is offline; --provider deepseek configures real API env.
+import sys as _wb_sys
+from pathlib import Path as _wb_Path
+_WB_ROOT = _wb_Path(__file__).resolve().parents[1]
+if str(_WB_ROOT) not in _wb_sys.path:
+    _wb_sys.path.insert(0, str(_WB_ROOT))
+from mini_workbuddy.chapter_demo import maybe_run_chapter_demo as _wb_maybe_run_chapter_demo
+_wb_maybe_run_chapter_demo(__file__, PROGRESSION)
+from mini_workbuddy.chapter_demo import prepare_chapter_provider as _wb_prepare_chapter_provider
+_wb_prepare_chapter_provider()
 import os, sys, time, json, sqlite3, uuid
 from datetime import datetime, timedelta
 from pathlib import Path

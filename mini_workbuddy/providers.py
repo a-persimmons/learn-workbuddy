@@ -29,6 +29,8 @@ Providers
 ---------
 - AnthropicProvider          — messages API, tool_use / tool_result
 - OpenAIResponsesProvider    — Responses API, function_call / function_call_output
+- DeepSeekProvider           — Anthropic-compatible API, tool_use / tool_result
+- OpenAIChatProvider         — OpenAI-compatible /v1/chat/completions
 - OfflineMockProvider        — deterministic, no network, for tests/offline demo
 
 The offline provider is what lets CI and keyless readers exercise the
@@ -37,15 +39,19 @@ tool-using agent that proves the harness plumbing works end to end.
 
 Config (.env)
 -------------
-    PROVIDER=anthropic|openai|offline   (default: auto — see select_provider)
+    PROVIDER=anthropic|deepseek|openai|openai-chat|offline   (default: auto — see select_provider)
     ANTHROPIC_API_KEY, MODEL_ID         (anthropic)
+    DEEPSEEK_API_KEY, DEEPSEEK_MODEL    (deepseek)
     OPENAI_API_KEY, OPENAI_MODEL        (openai)
+    OPENAI_CHAT_API_KEY, OPENAI_CHAT_BASE_URL, OPENAI_CHAT_MODEL (openai-chat)
 """
 
 from __future__ import annotations
 
 import json
 import os
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -121,11 +127,19 @@ class Provider:
 class AnthropicProvider(Provider):
     name = "anthropic"
 
-    def __init__(self, model: str | None = None, base_url: str | None = None) -> None:
+    def __init__(
+        self,
+        model: str | None = None,
+        base_url: str | None = None,
+        api_key: str | None = None,
+    ) -> None:
         from anthropic import Anthropic  # lazy: only real use needs the SDK
 
         self.model = model or os.environ["MODEL_ID"]
-        self._client = Anthropic(base_url=base_url or os.getenv("ANTHROPIC_BASE_URL"))
+        self._client = Anthropic(
+            api_key=api_key,
+            base_url=base_url or os.getenv("ANTHROPIC_BASE_URL"),
+        )
 
     def _tools(self, tools: list[ToolSpec]) -> list[dict]:
         return [
@@ -162,6 +176,34 @@ class AnthropicProvider(Provider):
                 for call, output in results
             ],
         }
+
+
+# --------------------------------------------------------------------------
+# DeepSeek — Anthropic-compatible API
+# --------------------------------------------------------------------------
+
+
+class DeepSeekProvider(AnthropicProvider):
+    """DeepSeek as a first-class learning provider.
+
+    DeepSeek documents an Anthropic-compatible endpoint, so the same
+    tool_use/tool_result adapter used by the early lessons can run against
+    DeepSeek with only DEEPSEEK_API_KEY. Keeping this as a named provider
+    improves the learner experience: no one has to know that it is wired
+    through Anthropic compatibility under the hood.
+    """
+
+    name = "deepseek"
+
+    def __init__(self, model: str | None = None, base_url: str | None = None) -> None:
+        api_key = os.getenv("DEEPSEEK_API_KEY")
+        if not api_key:
+            raise SystemExit("PROVIDER=deepseek requires DEEPSEEK_API_KEY.")
+        super().__init__(
+            model=model or os.getenv("DEEPSEEK_MODEL", "deepseek-v4-pro"),
+            base_url=base_url or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/anthropic"),
+            api_key=api_key,
+        )
 
 
 # --------------------------------------------------------------------------
@@ -239,6 +281,94 @@ class OpenAIResponsesProvider(Provider):
 
 
 # --------------------------------------------------------------------------
+# OpenAI-compatible Chat Completions — /v1/chat/completions
+# --------------------------------------------------------------------------
+
+
+class OpenAIChatProvider(Provider):
+    """OpenAI-compatible gateway provider using only the standard library."""
+
+    name = "openai-chat"
+
+    def __init__(
+        self,
+        model: str | None = None,
+        base_url: str | None = None,
+        api_key: str | None = None,
+    ) -> None:
+        self.model = model or os.getenv("OPENAI_CHAT_MODEL") or os.getenv("OPENAI_MODEL", "gpt-4.1")
+        self.base_url = (
+            base_url
+            or os.getenv("OPENAI_CHAT_BASE_URL")
+            or os.getenv("OPENAI_BASE_URL")
+            or "https://api.openai.com/v1"
+        ).rstrip("/")
+        self.api_key = api_key or os.getenv("OPENAI_CHAT_API_KEY") or os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise SystemExit("PROVIDER=openai-chat requires OPENAI_CHAT_API_KEY or OPENAI_API_KEY.")
+
+    def _tools(self, tools: list[ToolSpec]) -> list[dict]:
+        return [
+            {
+                "type": "function",
+                "function": {
+                    "name": t.name,
+                    "description": t.description,
+                    "parameters": t.parameters,
+                },
+            }
+            for t in tools
+        ]
+
+    def create(self, request: ProviderRequest) -> ModelTurn:
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "system", "content": request.system}, *request.messages],
+            "tools": self._tools(request.tools),
+            "tool_choice": "auto",
+            "max_tokens": request.max_tokens,
+        }
+        raw = self._post_json("/chat/completions", payload)
+        choice = (raw.get("choices") or [{}])[0]
+        message = choice.get("message") or {}
+        text = message.get("content") or ""
+        calls: list[ToolCall] = []
+        for item in message.get("tool_calls") or []:
+            fn = item.get("function") or {}
+            calls.append(
+                ToolCall(
+                    id=item.get("id") or f"call_{len(calls) + 1}",
+                    name=fn.get("name", ""),
+                    arguments=json.loads(fn.get("arguments") or "{}"),
+                )
+            )
+        return ModelTurn(text=text, tool_calls=calls, raw_assistant=message)
+
+    def format_tool_results(self, results: list[tuple[ToolCall, str]]) -> Any:
+        return [
+            {"role": "tool", "tool_call_id": call.id, "content": output}
+            for call, output in results
+        ]
+
+    def _post_json(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        req = urllib.request.Request(
+            self.base_url + path,
+            data=json.dumps(payload).encode("utf-8"),
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"OpenAI-compatible gateway HTTP {exc.code}: {body[:1000]}") from exc
+
+
+# --------------------------------------------------------------------------
 # Offline mock — deterministic, no network. Powers CI and keyless demo.
 # --------------------------------------------------------------------------
 
@@ -312,8 +442,12 @@ def normalized_tools() -> list[ToolSpec]:
 def provider_env_ready(provider: str) -> bool:
     if provider == "anthropic":
         return bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("MODEL_ID"))
+    if provider == "deepseek":
+        return bool(os.getenv("DEEPSEEK_API_KEY"))
     if provider == "openai":
         return bool(os.getenv("OPENAI_API_KEY"))
+    if provider == "openai-chat":
+        return bool(os.getenv("OPENAI_CHAT_API_KEY") or os.getenv("OPENAI_API_KEY"))
     if provider == "offline":
         return True
     return False
@@ -330,8 +464,12 @@ def select_provider(explicit: str | None = None) -> Provider:
     if choice == "auto":
         if provider_env_ready("anthropic"):
             choice = "anthropic"
+        elif provider_env_ready("deepseek"):
+            choice = "deepseek"
         elif provider_env_ready("openai"):
             choice = "openai"
+        elif provider_env_ready("openai-chat"):
+            choice = "openai-chat"
         else:
             choice = "offline"
 
@@ -342,13 +480,39 @@ def select_provider(explicit: str | None = None) -> Provider:
                 "Copy .env.example to .env and fill them, or use PROVIDER=offline."
             )
         return AnthropicProvider()
+    if choice == "deepseek":
+        if not provider_env_ready("deepseek"):
+            raise SystemExit(
+                "PROVIDER=deepseek requires DEEPSEEK_API_KEY "
+                "(optional: DEEPSEEK_MODEL, DEEPSEEK_BASE_URL). "
+                "Copy .env.example to .env and fill it, or use PROVIDER=offline."
+            )
+        return DeepSeekProvider()
     if choice == "openai":
         if not provider_env_ready("openai"):
             raise SystemExit(
                 "PROVIDER=openai requires OPENAI_API_KEY (and optionally OPENAI_MODEL). "
                 "Copy .env.example to .env and fill them, or use PROVIDER=offline."
-            )
+        )
         return OpenAIResponsesProvider()
+    if choice in {"openai-chat", "openai_compatible", "openai-compatible"}:
+        if not provider_env_ready("openai-chat"):
+            raise SystemExit(
+                "PROVIDER=openai-chat requires OPENAI_CHAT_API_KEY or OPENAI_API_KEY "
+                "(optional: OPENAI_CHAT_BASE_URL, OPENAI_CHAT_MODEL). "
+                "Copy .env.example to .env and fill it, or use PROVIDER=offline."
+            )
+        return OpenAIChatProvider()
     if choice == "offline":
         return OfflineMockProvider()
-    raise SystemExit(f"Unknown PROVIDER '{choice}'. Use anthropic | openai | offline.")
+    raise SystemExit(f"Unknown PROVIDER '{choice}'. Use anthropic | deepseek | openai | openai-chat | offline.")
+
+
+def append_provider_message(messages: list[Any], item: Any) -> None:
+    """Append provider-native message payloads without nesting lists."""
+    if item is None:
+        return
+    if isinstance(item, list):
+        messages.extend(item)
+    else:
+        messages.append(item)

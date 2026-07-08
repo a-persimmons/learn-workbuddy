@@ -186,6 +186,7 @@ pip install -r requirements.txt
 先跑完全离线的章节，不需要 API key：
 
 ```sh
+python3 s01_agent_loop/code.py --demo
 python3 s03_deferred_loading/code.py
 python3 s08_model_routing/code.py
 MINI_WORKBUDDY_HOME=.tmp/mini python3 examples/mini_workbuddy_demo/code.py --mode offline
@@ -199,19 +200,35 @@ python3 scripts/verify.py
 - 所有 Python 文件语法检查
 - pytest 行为测试：mini harness、REST/ACP 协议、章节 smoke、文档资产
 - 离线章节 demo：延迟加载、模型路由、JSONL、输出外部化、mini harness
+- 24 个章节的 `--demo` 离线学习入口
 - 离线交互模式：关键章节 `--interactive` 能正常进入和退出
 - mini HTTP server smoke
 - 24 章目录、每个 README 的代码架构图、27 张配图引用、clean-room 脱敏扫描
 
-再跑需要模型的章节：
+像 learn-claude-code 一样填 key 在线跑，推荐先用 DeepSeek：
 
 ```sh
 cp .env.example .env
-# 编辑 .env，填入 ANTHROPIC_API_KEY / MODEL_ID / ANTHROPIC_BASE_URL
-python3 examples/mini_workbuddy_demo/code.py --mode real
-python3 s01_agent_loop/code.py
-python3 s06_sidecar_server/code.py
-python3 s24_comprehensive/code.py
+# 编辑 .env，只填 DEEPSEEK_API_KEY 即可开始
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider deepseek
+python3 scripts/run_real_smoke.py --provider deepseek --targets mini
+python3 s01_agent_loop/code.py --provider deepseek
+python3 s24_comprehensive/code.py --provider deepseek
+```
+
+也可以使用 Anthropic 或 OpenAI：
+
+```sh
+# Anthropic-compatible lessons
+python3 s01_agent_loop/code.py --provider anthropic
+
+# OpenAI Responses API provider adapter（mini harness 路径）
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai
+
+# OpenAI-compatible 网关，例如 Sub2API /v1/chat/completions
+OPENAI_CHAT_BASE_URL=http://43.153.155.15:8080/v1 \
+OPENAI_CHAT_MODEL=gpt-5.5 \
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 ```
 
 ## Mini WorkBuddy
@@ -236,30 +253,34 @@ curl --noproxy '*' \
 - `mini_workbuddy.audit`: append-only hash chain audit log
 - `mini_workbuddy.server`: REST + ACP-like JSON-RPC
 - `mini_workbuddy.sidecar`: session runtime 启停管理示例
-- `mini_workbuddy.providers`: 双 provider 适配层（Anthropic / OpenAI / 离线 mock）
+- `mini_workbuddy.providers`: 多 provider 适配层（DeepSeek / Anthropic / OpenAI / 离线 mock）
 
-### 为什么教程同时支持 OpenAI 和 Anthropic 双 provider
+### 为什么教程同时支持 DeepSeek / OpenAI / Anthropic 多 provider
 
 learn-claude-code 用 Anthropic SDK 很自然，因为 Claude 的 `tool_use/tool_result`
 形状和 Claude Code 教程天然贴合。但本项目叫 **learn-workbuddy**，重点是
-**桌面 agent harness**，不该绑定某一家模型。所以我们做了一个 Provider Adapter：
-把 Anthropic 的 `tool_use/tool_result` 和 OpenAI Responses API 的
-`function_call/function_call_output` 归一成同一个 `ToolCall`/`ModelTurn` 形状，
-**agent loop 对两家完全一致**。这本身就是 harness 教学的一课：loop 稳定，provider 可换。
+**桌面 agent harness**，不该绑定某一家模型。所以我们做了两层适配：
+
+- 章节路径：`--provider deepseek` 会把 DeepSeek 的 Anthropic-compatible API 映射成章节已有的 `tool_use/tool_result` 运行环境。
+- mini harness 路径：Provider Adapter 把 DeepSeek/Anthropic 的 `tool_use/tool_result`、OpenAI Responses API 的 `function_call/function_call_output`、以及 OpenAI-compatible Chat Completions 的 `tool_calls` 归一成同一个 `ToolCall`/`ModelTurn`。
+
+这本身就是 harness 教学的一课：loop 稳定，provider 可换。
 
 ```sh
 # 离线 mock（无需 key，确定性，CI 与无 key 读者用）
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider offline
 
-# 真实 Anthropic / OpenAI
+# 真实 DeepSeek / Anthropic / OpenAI / OpenAI-compatible gateway
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider deepseek
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider anthropic
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai
+python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 
 # 一键真实 API 冒烟（可选，需 key）
-python3 scripts/run_real_smoke.py --provider openai --targets mini
+python3 scripts/run_real_smoke.py --provider deepseek --targets mini s01 s24
 ```
 
-配置见 `.env.example`（`PROVIDER=anthropic|openai|offline|auto`）。协议对照与设计
+配置见 `.env.example`（`PROVIDER=deepseek|anthropic|openai|openai-chat|offline|auto`）。协议对照与设计
 说明见 [docs/appendix/provider-adapter.md](./docs/appendix/provider-adapter.md)。
 
 ## 记忆系统重点

@@ -1,12 +1,12 @@
-# Appendix: Provider Adapter - Anthropic `tool_use` vs OpenAI `function_call`
+# Appendix: Provider Adapter - DeepSeek / Anthropic `tool_use` vs OpenAI `function_call`
 
-`learn-workbuddy` 教的是桌面 agent harness，不是某一家模型厂商的 API。理想状态下，agent loop 不应该关心模型来自 Anthropic、OpenAI，还是离线 mock。模型协议可以不同，但 harness 的工具执行、权限、审计、转录和外部化逻辑应该保持一致。
+`learn-workbuddy` 教的是桌面 agent harness，不是某一家模型厂商的 API。理想状态下，agent loop 不应该关心模型来自 DeepSeek、Anthropic、OpenAI，还是离线 mock。模型协议可以不同，但 harness 的工具执行、权限、审计、转录和外部化逻辑应该保持一致。
 
 这就是 `mini_workbuddy/providers.py` 的作用：把不同 provider 的工具调用协议归一成同一个内部形状。
 
 ## 两种协议的差异
 
-| 关注点 | Anthropic Messages API | OpenAI Responses API |
+| 关注点 | DeepSeek / Anthropic-compatible Messages API | OpenAI Responses API |
 |---|---|---|
 | 工具定义 | `{name, description, input_schema}` | `{type:"function", name, description, parameters}` |
 | 模型请求工具 | `tool_use` content block，含 `id`、`name`、`input` | `function_call` output item，含 `call_id`、`name`、`arguments` |
@@ -16,7 +16,7 @@
 | 系统提示 | `system=` | `instructions=` |
 | assistant turn | `{role:"assistant", content: response.content}` | `response.output` item list |
 
-最容易踩坑的两点：OpenAI 的工具参数是 JSON 字符串，Anthropic 是 dict；两边工具调用 ID 字段也不同。adapter 的意义就是把这些差异从主 loop 里拿掉。
+最容易踩坑的两点：OpenAI 的工具参数是 JSON 字符串，DeepSeek / Anthropic-compatible 是 dict；两边工具调用 ID 字段也不同。adapter 的意义就是把这些差异从主 loop 里拿掉。
 
 ## 归一后的内部契约
 
@@ -59,14 +59,19 @@ OpenAI 有两层抽象：
 `.env` 配置：
 
 ```env
-PROVIDER=anthropic|openai|offline
+PROVIDER=deepseek|anthropic|openai|openai-chat|offline
+DEEPSEEK_API_KEY=...
+DEEPSEEK_MODEL=deepseek-v4-pro
 ANTHROPIC_API_KEY=...
 MODEL_ID=...
 OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-4.1
+OPENAI_CHAT_BASE_URL=http://43.153.155.15:8080/v1
+OPENAI_CHAT_API_KEY=...
+OPENAI_CHAT_MODEL=gpt-5.5
 ```
 
-`auto` 逻辑是：优先 Anthropic key，其次 OpenAI key，都没有则回退离线 mock。离线 mock 是一个脚本化工具调用 agent，用来让无 key 读者和 CI 也能跑完整 harness。
+`auto` 逻辑是：优先 Anthropic key，其次 DeepSeek key，再其次 OpenAI Responses key，再其次 OpenAI-compatible Chat key，都没有则回退离线 mock。离线 mock 是一个脚本化工具调用 agent，用来让无 key 读者和 CI 也能跑完整 harness。
 
 ## 运行
 
@@ -74,11 +79,18 @@ OPENAI_MODEL=gpt-4.1
 # 离线，无 key，确定性
 python examples/mini_workbuddy_demo/code.py --mode real --provider offline
 
+# 真实 DeepSeek，推荐学习路径
+python examples/mini_workbuddy_demo/code.py --mode real --provider deepseek
+python s01_agent_loop/code.py --provider deepseek
+
 # 真实 Anthropic
 python examples/mini_workbuddy_demo/code.py --mode real --provider anthropic
 
 # 真实 OpenAI
 python examples/mini_workbuddy_demo/code.py --mode real --provider openai
+
+# OpenAI-compatible 网关
+python examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 
 # 一键真实 API 冒烟，需 key
 python scripts/run_real_smoke.py --provider openai --targets mini
@@ -96,3 +108,5 @@ python scripts/run_real_smoke.py --provider openai --targets mini
 - OpenAI Responses API overview: https://developers.openai.com/api/reference/responses/overview/
 - OpenAI function calling guide: https://developers.openai.com/api/docs/guides/function-calling
 - OpenAI Agents SDK: https://openai.github.io/openai-agents-python/
+- DeepSeek API docs: https://api-docs.deepseek.com/
+- DeepSeek Anthropic-compatible guide: https://api-docs.deepseek.com/guides/anthropic_api
