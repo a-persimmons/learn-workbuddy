@@ -31,17 +31,6 @@ python3 examples/full_tour/code.py
 
 这条命令会离线跑完整 harness tour：provider adapter、session、记忆、工具、权限、外部化、JSONL、HTTP、审计和 artifacts 全部走一遍。想按课程学，走 [Learning Guide](./docs/learning-guide.md)；想先看图，走 [Visual Tour](./docs/visual-tour.md)。
 
-## 和普通 Agent 教程有什么不同
-
-| 普通 tool-calling 教程 | learn-workbuddy |
-|---|---|
-| 重点是一次模型调用和工具调用 | 重点是长期运行的 desktop harness |
-| 常停留在 CLI / 单进程 | 拆 UI shell、sidecar、session runtime |
-| 历史通常放在内存列表 | JSONL transcript、SQLite、artifact 指针 |
-| 记忆容易直接塞 prompt | workspace/user/remote recall 分层选择 |
-| 安全常用简单提示词约束 | permission hooks、sandbox 边界、audit hash chain |
-| 很少覆盖交付和自动化 | result presentation、scheduler、full tour |
-
 ## 这个项目解决什么
 
 很多人能写一个 CLI agent，却卡在桌面 AI 助手的“工程系统”上：
