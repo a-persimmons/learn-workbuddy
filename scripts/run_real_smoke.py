@@ -17,7 +17,7 @@ Usage:
     python scripts/run_real_smoke.py --provider openai-chat
 
     # Pick which targets to run (default: mini)
-    python scripts/run_real_smoke.py --targets mini s01 s24
+    python scripts/run_real_smoke.py --targets mini full s01 s24
 
 This intentionally lives outside the pytest suite: it is a manual,
 key-required verification, not an automated test. It exits non-zero on the
@@ -31,6 +31,7 @@ import argparse
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,6 +79,15 @@ def smoke_mini(provider: str) -> int:
     ])
 
 
+def smoke_full_tour(provider: str) -> int:
+    home = tempfile.mkdtemp(prefix=f"learn-workbuddy-{provider}-full-")
+    return _run([
+        sys.executable, "examples/full_tour/code.py",
+        "--provider", provider,
+        "--home", home,
+    ])
+
+
 def smoke_lesson(script: str, provider: str) -> int:
     """Drive an interactive lesson with one prompt then quit.
 
@@ -96,6 +106,7 @@ def smoke_lesson(script: str, provider: str) -> int:
 
 TARGETS = {
     "mini": lambda p: smoke_mini(p),
+    "full": lambda p: smoke_full_tour(p),
     "s01": lambda p: smoke_lesson("s01_agent_loop/code.py", p),
     "s24": lambda p: smoke_lesson("s24_comprehensive/code.py", p),
 }

@@ -96,7 +96,8 @@ python examples/mini_workbuddy_demo/code.py --mode real --provider openai
 python examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 
 # 一键真实 API 冒烟，需 key
-python scripts/run_real_smoke.py --provider openai --targets mini
+python scripts/run_real_smoke.py --provider openai --targets mini full
+python scripts/run_real_smoke.py --provider openai-chat --targets mini full
 ```
 
 ## 对应代码

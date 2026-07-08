@@ -232,6 +232,10 @@ python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai
 OPENAI_CHAT_BASE_URL=http://43.153.155.15:8080/v1 \
 OPENAI_CHAT_MODEL=gpt-5.5 \
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
+
+OPENAI_CHAT_BASE_URL=http://43.153.155.15:8080/v1 \
+OPENAI_CHAT_MODEL=gpt-5.5 \
+python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full
 ```
 
 ## Mini WorkBuddy
@@ -280,7 +284,8 @@ python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 
 # 一键真实 API 冒烟（可选，需 key）
-python3 scripts/run_real_smoke.py --provider deepseek --targets mini s01 s24
+python3 scripts/run_real_smoke.py --provider deepseek --targets mini full s01 s24
+python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full
 ```
 
 配置见 `.env.example`（`PROVIDER=deepseek|anthropic|openai|openai-chat|offline|auto`）。协议对照与设计
