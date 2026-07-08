@@ -1,178 +1,160 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
   <defs>
-    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1a73e8" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#1a73e8" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#eef4ff"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#5f6368"/>
+    </marker>
+    <style>
+      .title { font-size: 28px; font-weight: 800; fill: #202124; }
+      .subtitle { font-size: 14px; fill: #5f6368; }
+      .group-title { font-size: 15px; font-weight: 800; fill: #ffffff; }
+      .group-sub { font-size: 10.5px; fill: rgba(255,255,255,0.88); }
+      .chapter-title { font-size: 11px; font-weight: 750; fill: #202124; }
+      .chapter-sub { font-size: 8.7px; fill: #5f6368; }
+      .tiny { font-size: 10px; fill: #5f6368; }
+    </style>
   </defs>
-  <rect width="800" height="500" fill="#f8f9fa"/>
 
-  <text x="400" y="28" text-anchor="middle" font-size="20" font-weight="bold" fill="#202124">24 课全景 — 一个循环</text>
+  <rect width="1100" height="720" fill="url(#bg)"/>
 
-  <!-- Center glow -->
-  <circle cx="400" cy="250" r="200" fill="url(#centerGlow)"/>
+  <text x="550" y="38" text-anchor="middle" class="title">24 课全景：从 Agent Loop 到桌面 Harness</text>
+  <text x="550" y="62" text-anchor="middle" class="subtitle">每个章节只新增一个机制，最终组合成一个可运行、可记忆、可审计、可扩展的 WorkBuddy-style 桌面 Agent</text>
 
-  <!-- Spokes (lines from center to each node) -->
-  <!-- Layer 1: 工具层 (green) - 4 items -->
-  <line x1="400" y1="250" x2="170" y2="60" stroke="#34a853" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="80" y2="130" stroke="#34a853" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="60" y2="200" stroke="#34a853" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="60" y2="260" stroke="#34a853" stroke-width="1.5" opacity="0.3"/>
+  <rect x="422" y="92" width="256" height="104" rx="18" fill="#1a73e8"/>
+  <text x="550" y="126" text-anchor="middle" font-size="20" font-weight="800" fill="#ffffff">s01 Agent Loop</text>
+  <text x="550" y="149" text-anchor="middle" font-size="13" fill="#d6e4ff">主循环：模型请求工具，Harness 执行并写回结果</text>
+  <text x="550" y="172" text-anchor="middle" font-size="12" fill="#d6e4ff">while True -> model -> tool/result -> final answer</text>
 
-  <!-- Layer 2: 记忆层 (blue) - 4 items -->
-  <line x1="400" y1="250" x2="170" y2="440" stroke="#1a73e8" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="80" y2="370" stroke="#1a73e8" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="60" y2="310" stroke="#1a73e8" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="630" y2="440" stroke="#1a73e8" stroke-width="1.5" opacity="0.3"/>
+  <path d="M550 196 L550 232" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
 
-  <!-- Layer 3: 安全层 (red) - 3 items -->
-  <line x1="400" y1="250" x2="720" y2="130" stroke="#ea4335" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="740" y2="200" stroke="#ea4335" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="740" y2="260" stroke="#ea4335" stroke-width="1.5" opacity="0.3"/>
+  <rect x="390" y="230" width="320" height="44" rx="22" fill="#202124"/>
+  <text x="550" y="258" text-anchor="middle" font-size="15" font-weight="750" fill="#ffffff">最终目标：一个完整桌面 Agent Harness</text>
 
-  <!-- Layer 4: 持久层 (yellow) - 3 items -->
-  <line x1="400" y1="250" x2="630" y2="60" stroke="#fbbc04" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="720" y2="370" stroke="#fbbc04" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="740" y2="310" stroke="#fbbc04" stroke-width="1.5" opacity="0.3"/>
+  <path d="M390 252 L342 252" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M710 252 L758 252" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M470 274 L470 313" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M630 274 L630 313" stroke="#5f6368" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
 
-  <!-- Layer 5: 进程层 (purple) - 3 items -->
-  <line x1="400" y1="250" x2="80" y2="440" stroke="#7b1fa2" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="250" y2="460" stroke="#7b1fa2" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="550" y2="460" stroke="#7b1fa2" stroke-width="1.5" opacity="0.3"/>
+  <!-- Group 1 -->
+  <rect x="40" y="314" width="320" height="166" rx="16" fill="#ffffff" stroke="#34a853" stroke-width="1.5"/>
+  <rect x="40" y="314" width="320" height="42" rx="16" fill="#34a853"/>
+  <rect x="40" y="342" width="320" height="14" fill="#34a853"/>
+  <text x="200" y="338" text-anchor="middle" class="group-title">A. 工具能力层</text>
+  <text x="200" y="352" text-anchor="middle" class="group-sub">让 Agent 能做事，但按需暴露能力</text>
 
-  <!-- Layer 6: 交互层 (cyan) - 4 items -->
-  <line x1="400" y1="250" x2="400" y2="50" stroke="#0097a7" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="400" y2="450" stroke="#0097a7" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="300" y2="60" stroke="#0097a7" stroke-width="1.5" opacity="0.3"/>
-  <line x1="400" y1="250" x2="500" y2="60" stroke="#0097a7" stroke-width="1.5" opacity="0.3"/>
+  <rect x="60" y="378" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="126" y="393" text-anchor="middle" class="chapter-title">s02 工具分发</text>
+  <text x="126" y="406" text-anchor="middle" class="chapter-sub">dispatch map</text>
+  <rect x="208" y="378" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="274" y="393" text-anchor="middle" class="chapter-title">s03 延迟加载</text>
+  <text x="274" y="406" text-anchor="middle" class="chapter-sub">ToolSearch</text>
+  <rect x="60" y="426" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="126" y="441" text-anchor="middle" class="chapter-title">s16 Skills</text>
+  <text x="126" y="454" text-anchor="middle" class="chapter-sub">SKILL.md</text>
+  <rect x="208" y="426" width="132" height="34" rx="8" fill="#e6f4ea" stroke="#34a853"/>
+  <text x="274" y="441" text-anchor="middle" class="chapter-title">s17 MCP</text>
+  <text x="274" y="454" text-anchor="middle" class="chapter-sub">外部连接器</text>
 
-  <!-- Center: Agent Loop -->
-  <circle cx="400" cy="250" r="65" fill="#1a73e8"/>
-  <circle cx="400" cy="250" r="65" fill="none" stroke="#1a73e8" stroke-width="3" opacity="0.3"/>
-  <text x="400" y="240" text-anchor="middle" font-size="14" fill="white" font-weight="bold">s01</text>
-  <text x="400" y="258" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Agent Loop</text>
-  <text x="400" y="275" text-anchor="middle" font-size="10" fill="#e8f0fe">核心循环</text>
+  <!-- Group 2 -->
+  <rect x="390" y="314" width="320" height="166" rx="16" fill="#ffffff" stroke="#1a73e8" stroke-width="1.5"/>
+  <rect x="390" y="314" width="320" height="42" rx="16" fill="#1a73e8"/>
+  <rect x="390" y="342" width="320" height="14" fill="#1a73e8"/>
+  <text x="550" y="338" text-anchor="middle" class="group-title">B. 上下文与记忆层</text>
+  <text x="550" y="352" text-anchor="middle" class="group-sub">让 Agent 能长期工作，不被上下文窗口困住</text>
 
-  <!-- 工具层 (green) -->
-  <rect x="120" y="42" width="100" height="36" rx="6" fill="#34a853"/>
-  <text x="170" y="58" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s02 工具分发</text>
-  <text x="170" y="72" text-anchor="middle" font-size="8" fill="white">Tool Dispatch</text>
+  <rect x="410" y="378" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="476" y="393" text-anchor="middle" class="chapter-title">s09 JSONL</text>
+  <text x="476" y="406" text-anchor="middle" class="chapter-sub">会话转录</text>
+  <rect x="558" y="378" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="624" y="393" text-anchor="middle" class="chapter-title">s10 工作区记忆</text>
+  <text x="624" y="406" text-anchor="middle" class="chapter-sub">project memory</text>
+  <rect x="410" y="426" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="476" y="441" text-anchor="middle" class="chapter-title">s11 用户记忆</text>
+  <text x="476" y="454" text-anchor="middle" class="chapter-sub">user memory</text>
+  <rect x="558" y="426" width="132" height="34" rx="8" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="624" y="441" text-anchor="middle" class="chapter-title">s12 云端记忆</text>
+  <text x="624" y="454" text-anchor="middle" class="chapter-sub">profile / recall</text>
 
-  <rect x="30" y="112" width="100" height="36" rx="6" fill="#34a853"/>
-  <text x="80" y="128" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s03 延迟加载</text>
-  <text x="80" y="142" text-anchor="middle" font-size="8" fill="white">Deferred Loading</text>
+  <!-- Group 3 -->
+  <rect x="740" y="314" width="320" height="166" rx="16" fill="#ffffff" stroke="#fbbc04" stroke-width="1.5"/>
+  <rect x="740" y="314" width="320" height="42" rx="16" fill="#fbbc04"/>
+  <rect x="740" y="342" width="320" height="14" fill="#fbbc04"/>
+  <text x="900" y="338" text-anchor="middle" class="group-title" fill="#202124">C. 压缩与持久层</text>
+  <text x="900" y="352" text-anchor="middle" font-size="10.5px" fill="#5f6368">大输出、长历史、结构化数据都要落盘</text>
 
-  <rect x="10" y="182" width="100" height="36" rx="6" fill="#34a853"/>
-  <text x="60" y="198" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s16 技能系统</text>
-  <text x="60" y="212" text-anchor="middle" font-size="8" fill="white">Skills System</text>
+  <rect x="760" y="378" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="826" y="393" text-anchor="middle" class="chapter-title">s13 输出外化</text>
+  <text x="826" y="406" text-anchor="middle" class="chapter-sub">tool result swap</text>
+  <rect x="908" y="378" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="974" y="393" text-anchor="middle" class="chapter-title">s14 上下文压缩</text>
+  <text x="974" y="406" text-anchor="middle" class="chapter-sub">compact pipeline</text>
+  <rect x="760" y="426" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="826" y="441" text-anchor="middle" class="chapter-title">s21 SQLite</text>
+  <text x="826" y="454" text-anchor="middle" class="chapter-sub">structured store</text>
+  <rect x="908" y="426" width="132" height="34" rx="8" fill="#fef7e0" stroke="#fbbc04"/>
+  <text x="974" y="441" text-anchor="middle" class="chapter-title">s22 自动化</text>
+  <text x="974" y="454" text-anchor="middle" class="chapter-sub">scheduler</text>
 
-  <rect x="10" y="242" width="100" height="36" rx="6" fill="#34a853"/>
-  <text x="60" y="258" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s17 MCP连接器</text>
-  <text x="60" y="272" text-anchor="middle" font-size="8" fill="white">MCP Connectors</text>
+  <!-- Group 4 -->
+  <rect x="40" y="510" width="320" height="150" rx="16" fill="#ffffff" stroke="#7b1fa2" stroke-width="1.5"/>
+  <rect x="40" y="510" width="320" height="42" rx="16" fill="#7b1fa2"/>
+  <rect x="40" y="538" width="320" height="14" fill="#7b1fa2"/>
+  <text x="200" y="534" text-anchor="middle" class="group-title">D. 桌面运行时层</text>
+  <text x="200" y="548" text-anchor="middle" class="group-sub">前端、Sidecar、会话生命周期分层</text>
 
-  <!-- 记忆层 (blue) -->
-  <rect x="120" y="422" width="100" height="36" rx="6" fill="#1a73e8"/>
-  <text x="170" y="438" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s10 工作区记忆</text>
-  <text x="170" y="452" text-anchor="middle" font-size="8" fill="white">Workspace Memory</text>
+  <rect x="60" y="574" width="132" height="34" rx="8" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="126" y="589" text-anchor="middle" class="chapter-title">s05 Electron</text>
+  <text x="126" y="602" text-anchor="middle" class="chapter-sub">shell / IPC</text>
+  <rect x="208" y="574" width="132" height="34" rx="8" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="274" y="589" text-anchor="middle" class="chapter-title">s06 Sidecar</text>
+  <text x="274" y="602" text-anchor="middle" class="chapter-sub">local server</text>
+  <rect x="134" y="616" width="132" height="34" rx="8" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="200" y="631" text-anchor="middle" class="chapter-title">s07 会话管理</text>
+  <text x="200" y="644" text-anchor="middle" class="chapter-sub">resume / lifecycle</text>
 
-  <rect x="30" y="352" width="100" height="36" rx="6" fill="#1a73e8"/>
-  <text x="80" y="368" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s11 用户记忆</text>
-  <text x="80" y="382" text-anchor="middle" font-size="8" fill="white">User Memory</text>
+  <!-- Group 5 -->
+  <rect x="390" y="510" width="320" height="150" rx="16" fill="#ffffff" stroke="#0097a7" stroke-width="1.5"/>
+  <rect x="390" y="510" width="320" height="42" rx="16" fill="#0097a7"/>
+  <rect x="390" y="538" width="320" height="14" fill="#0097a7"/>
+  <text x="550" y="534" text-anchor="middle" class="group-title">E. 交互与交付层</text>
+  <text x="550" y="548" text-anchor="middle" class="group-sub">从 prompt 组装到最终可视化交付</text>
 
-  <rect x="10" y="292" width="100" height="36" rx="6" fill="#1a73e8"/>
-  <text x="60" y="308" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s12 云端记忆</text>
-  <text x="60" y="322" text-anchor="middle" font-size="8" fill="white">Cloud Memory</text>
+  <rect x="410" y="574" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="476" y="589" text-anchor="middle" class="chapter-title">s15 Prompt</text>
+  <text x="476" y="602" text-anchor="middle" class="chapter-sub">runtime assembly</text>
+  <rect x="558" y="574" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="624" y="589" text-anchor="middle" class="chapter-title">s18 专家系统</text>
+  <text x="624" y="602" text-anchor="middle" class="chapter-sub">expert package</text>
+  <rect x="410" y="616" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="476" y="631" text-anchor="middle" class="chapter-title">s19 可视化</text>
+  <text x="476" y="644" text-anchor="middle" class="chapter-sub">widget / SVG</text>
+  <rect x="558" y="616" width="132" height="34" rx="8" fill="#e0f7fa" stroke="#0097a7"/>
+  <text x="624" y="631" text-anchor="middle" class="chapter-title">s20 结果交付</text>
+  <text x="624" y="644" text-anchor="middle" class="chapter-sub">artifacts</text>
 
-  <rect x="580" y="422" width="100" height="36" rx="6" fill="#1a73e8"/>
-  <text x="630" y="438" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s09 JSONL</text>
-  <text x="630" y="452" text-anchor="middle" font-size="8" fill="white">Transcript</text>
+  <!-- Group 6 -->
+  <rect x="740" y="510" width="320" height="150" rx="16" fill="#ffffff" stroke="#ea4335" stroke-width="1.5"/>
+  <rect x="740" y="510" width="320" height="42" rx="16" fill="#ea4335"/>
+  <rect x="740" y="538" width="320" height="14" fill="#ea4335"/>
+  <text x="900" y="534" text-anchor="middle" class="group-title">F. 治理与综合层</text>
+  <text x="900" y="548" text-anchor="middle" class="group-sub">让自主执行变得可控、可审计、可复盘</text>
 
-  <!-- 安全层 (red) -->
-  <rect x="670" y="112" width="100" height="36" rx="6" fill="#ea4335"/>
-  <text x="720" y="128" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s04 权限钩子</text>
-  <text x="720" y="142" text-anchor="middle" font-size="8" fill="white">Permission Hooks</text>
+  <rect x="760" y="574" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="826" y="589" text-anchor="middle" class="chapter-title">s04 权限钩子</text>
+  <text x="826" y="602" text-anchor="middle" class="chapter-sub">permission hooks</text>
+  <rect x="908" y="574" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="974" y="589" text-anchor="middle" class="chapter-title">s08 模型路由</text>
+  <text x="974" y="602" text-anchor="middle" class="chapter-sub">model tiers</text>
+  <rect x="760" y="616" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="826" y="631" text-anchor="middle" class="chapter-title">s23 审计沙箱</text>
+  <text x="826" y="644" text-anchor="middle" class="chapter-sub">audit / sandbox</text>
+  <rect x="908" y="616" width="132" height="34" rx="8" fill="#fce8e6" stroke="#ea4335"/>
+  <text x="974" y="631" text-anchor="middle" class="chapter-title">s24 综合版</text>
+  <text x="974" y="644" text-anchor="middle" class="chapter-sub">integrated loop</text>
 
-  <rect x="690" y="182" width="100" height="36" rx="6" fill="#ea4335"/>
-  <text x="740" y="198" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s23 审计沙箱</text>
-  <text x="740" y="212" text-anchor="middle" font-size="8" fill="white">Audit Sandbox</text>
-
-  <rect x="690" y="242" width="100" height="36" rx="6" fill="#ea4335"/>
-  <text x="740" y="258" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s08 模型路由</text>
-  <text x="740" y="272" text-anchor="middle" font-size="8" fill="white">Model Routing</text>
-
-  <!-- 持久层 (yellow) -->
-  <rect x="580" y="42" width="100" height="36" rx="6" fill="#fbbc04"/>
-  <text x="630" y="58" text-anchor="middle" font-size="10" fill="#202124" font-weight="bold">s14 上下文压缩</text>
-  <text x="630" y="72" text-anchor="middle" font-size="8" fill="#202124">Context Compact</text>
-
-  <rect x="670" y="352" width="100" height="36" rx="6" fill="#fbbc04"/>
-  <text x="720" y="368" text-anchor="middle" font-size="10" fill="#202124" font-weight="bold">s21 SQLite</text>
-  <text x="720" y="382" text-anchor="middle" font-size="8" fill="#202124">Database</text>
-
-  <rect x="690" y="292" width="100" height="36" rx="6" fill="#fbbc04"/>
-  <text x="740" y="308" text-anchor="middle" font-size="10" fill="#202124" font-weight="bold">s22 自动化</text>
-  <text x="740" y="322" text-anchor="middle" font-size="8" fill="#202124">Automation</text>
-
-  <!-- 进程层 (purple) -->
-  <rect x="30" y="422" width="100" height="36" rx="6" fill="#7b1fa2"/>
-  <text x="80" y="438" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s05 Electron</text>
-  <text x="80" y="452" text-anchor="middle" font-size="8" fill="white">Shell</text>
-
-  <rect x="200" y="452" width="100" height="36" rx="6" fill="#7b1fa2"/>
-  <text x="250" y="468" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s06 Sidecar</text>
-  <text x="250" y="482" text-anchor="middle" font-size="8" fill="white">Server</text>
-
-  <rect x="500" y="452" width="100" height="36" rx="6" fill="#7b1fa2"/>
-  <text x="550" y="468" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s07 会话管理</text>
-  <text x="550" y="482" text-anchor="middle" font-size="8" fill="white">Session Mgmt</text>
-
-  <!-- 交互层 (cyan) -->
-  <rect x="350" y="32" width="100" height="36" rx="6" fill="#0097a7"/>
-  <text x="400" y="48" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s15 Prompt</text>
-  <text x="400" y="62" text-anchor="middle" font-size="8" fill="white">Assembly</text>
-
-  <rect x="250" y="42" width="100" height="36" rx="6" fill="#0097a7"/>
-  <text x="300" y="58" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s13 输出外化</text>
-  <text x="300" y="72" text-anchor="middle" font-size="8" fill="white">Output External.</text>
-
-  <rect x="450" y="42" width="100" height="36" rx="6" fill="#0097a7"/>
-  <text x="500" y="58" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s18 专家系统</text>
-  <text x="500" y="72" text-anchor="middle" font-size="8" fill="white">Experts System</text>
-
-  <rect x="350" y="432" width="100" height="36" rx="6" fill="#0097a7"/>
-  <text x="400" y="448" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s19 可视化</text>
-  <text x="400" y="462" text-anchor="middle" font-size="8" fill="white">Visualizer</text>
-
-  <!-- Missing s20, s24 - add them -->
-  <rect x="450" y="432" width="100" height="36" rx="6" fill="#0097a7"/>
-  <text x="500" y="448" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s20 结果交付</text>
-  <text x="500" y="462" text-anchor="middle" font-size="8" fill="white">Result Present.</text>
-
-  <rect x="250" y="432" width="100" height="36" rx="6" fill="#0097a7"/>
-  <text x="300" y="448" text-anchor="middle" font-size="10" fill="white" font-weight="bold">s24 全景总结</text>
-  <text x="300" y="462" text-anchor="middle" font-size="8" fill="white">Comprehensive</text>
-
-  <!-- Legend -->
-  <rect x="350" y="490" width="100" height="6" rx="3" fill="none"/>
-
-  <!-- Legend at bottom -->
-  <circle cx="30" cy="490" r="5" fill="#34a853"/>
-  <text x="40" y="494" font-size="9" fill="#202124">工具层</text>
-
-  <circle cx="100" cy="490" r="5" fill="#1a73e8"/>
-  <text x="110" y="494" font-size="9" fill="#202124">记忆层</text>
-
-  <circle cx="170" cy="490" r="5" fill="#ea4335"/>
-  <text x="180" y="494" font-size="9" fill="#202124">安全层</text>
-
-  <circle cx="240" cy="490" r="5" fill="#fbbc04"/>
-  <text x="250" y="494" font-size="9" fill="#202124">持久层</text>
-
-  <circle cx="310" cy="490" r="5" fill="#7b1fa2"/>
-  <text x="320" y="494" font-size="9" fill="#202124">进程层</text>
-
-  <circle cx="380" cy="490" r="5" fill="#0097a7"/>
-  <text x="390" y="494" font-size="9" fill="#202124">交互层</text>
-
-  <text x="440" y="494" font-size="9" fill="#202124" font-style="italic">所有机制围绕 Agent Loop 运转</text>
+  <rect x="70" y="682" width="960" height="24" rx="12" fill="#ffffff" stroke="#dadce0"/>
+  <text x="550" y="699" text-anchor="middle" class="tiny">一条主线：Agent Loop 是心脏；工具、记忆、运行时、持久化、交付和治理围绕它组成完整桌面 Harness。</text>
 </svg>
