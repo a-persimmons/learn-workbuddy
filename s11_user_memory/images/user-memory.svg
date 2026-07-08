@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">用户级记忆</text>
+
+  <!-- ~/.workbuddy/ directory -->
+  <rect x="200" y="55" width="400" height="55" rx="8" fill="#1a73e8"/>
+  <text x="400" y="83" text-anchor="middle" font-size="16" fill="white" font-weight="bold">~/.workbuddy/</text>
+  <text x="400" y="102" text-anchor="middle" font-size="12" fill="#e8f0fe">用户全局目录 · 所有项目共享</text>
+
+  <!-- Files -->
+  <rect x="50" y="130" width="160" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="50" y="130" width="160" height="30" rx="8" fill="#1a73e8"/>
+  <rect x="50" y="145" width="160" height="15" fill="#1a73e8"/>
+  <text x="130" y="150" text-anchor="middle" font-size="13" fill="white" font-weight="bold">persona.md</text>
+  <text x="70" y="180" font-size="11" fill="#202124">性格人格</text>
+  <text x="70" y="200" font-size="10" fill="#202124">· 沟通风格</text>
+  <text x="70" y="218" font-size="10" fill="#202124">· 语气设定</text>
+  <text x="70" y="236" font-size="10" fill="#202124">· 行为倾向</text>
+
+  <rect x="230" y="130" width="160" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="230" y="130" width="160" height="30" rx="8" fill="#1a73e8"/>
+  <rect x="230" y="145" width="160" height="15" fill="#1a73e8"/>
+  <text x="310" y="150" text-anchor="middle" font-size="13" fill="white" font-weight="bold">identity.md</text>
+  <text x="250" y="180" font-size="11" fill="#202124">身份认知</text>
+  <text x="250" y="200" font-size="10" fill="#202124">· 名字与角色</text>
+  <text x="250" y="218" font-size="10" fill="#202124">· 能力边界</text>
+  <text x="250" y="236" font-size="10" fill="#202124">· 核心原则</text>
+
+  <rect x="410" y="130" width="160" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="410" y="130" width="160" height="30" rx="8" fill="#1a73e8"/>
+  <rect x="410" y="145" width="160" height="15" fill="#1a73e8"/>
+  <text x="490" y="150" text-anchor="middle" font-size="13" fill="white" font-weight="bold">user.md</text>
+  <text x="430" y="180" font-size="11" fill="#202124">用户画像</text>
+  <text x="430" y="200" font-size="10" fill="#202124">· 技术背景</text>
+  <text x="430" y="218" font-size="10" fill="#202124">· 偏好习惯</text>
+  <text x="430" y="236" font-size="10" fill="#202124">· 常用语言</text>
+
+  <rect x="590" y="130" width="160" height="120" rx="8" fill="#fbbc04" opacity="0.3" stroke="#fbbc04" stroke-width="2"/>
+  <rect x="590" y="130" width="160" height="30" rx="8" fill="#fbbc04"/>
+  <rect x="590" y="145" width="160" height="15" fill="#fbbc04"/>
+  <text x="670" y="150" text-anchor="middle" font-size="13" fill="#202124" font-weight="bold">MEMORY.md</text>
+  <text x="610" y="180" font-size="11" fill="#202124">跨项目记忆</text>
+  <text x="610" y="200" font-size="10" fill="#202124">· 历史决策</text>
+  <text x="610" y="218" font-size="10" fill="#202124">· 全局约定</text>
+  <text x="610" y="236" font-size="10" fill="#202124">· 通用偏好</text>
+
+  <!-- 跨项目 label -->
+  <rect x="50" y="280" width="700" height="40" rx="8" fill="#34a853" opacity="0.15" stroke="#34a853" stroke-width="2"/>
+  <text x="400" y="305" text-anchor="middle" font-size="15" fill="#34a853" font-weight="bold">⬆ 跨项目共享 (cross-project) — 无论在哪个工作区都会加载</text>
+
+  <!-- Arrows to 跨项目 -->
+  <line x1="130" y1="250" x2="200" y2="280" stroke="#34a853" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="310" y1="250" x2="350" y2="280" stroke="#34a853" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="490" y1="250" x2="450" y2="280" stroke="#34a853" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="670" y1="250" x2="600" y2="280" stroke="#34a853" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- Project folders -->
+  <text x="400" y="350" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">多个项目工作区同时受益</text>
+
+  <rect x="80" y="370" width="180" height="45" rx="8" fill="#7b1fa2" opacity="0.2" stroke="#7b1fa2" stroke-width="1.5"/>
+  <text x="170" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">📁 Project A (.workbuddy/)</text>
+
+  <rect x="310" y="370" width="180" height="45" rx="8" fill="#7b1fa2" opacity="0.2" stroke="#7b1fa2" stroke-width="1.5"/>
+  <text x="400" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">📁 Project B (.workbuddy/)</text>
+
+  <rect x="540" y="370" width="180" height="45" rx="8" fill="#7b1fa2" opacity="0.2" stroke="#7b1fa2" stroke-width="1.5"/>
+  <text x="630" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">📁 Project C (.workbuddy/)</text>
+
+  <!-- Arrows from 跨项目 to projects -->
+  <line x1="200" y1="320" x2="170" y2="370" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="400" y1="320" x2="400" y2="370" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="600" y1="320" x2="630" y2="370" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Layering note -->
+  <rect x="80" y="430" width="640" height="50" rx="8" fill="#202124"/>
+  <text x="400" y="452" text-anchor="middle" font-size="13" fill="white" font-weight="bold">记忆层级: 用户级 (~/.workbuddy/) + 工作区级 (.workbuddy/) → 合并注入 Prompt</text>
+  <text x="400" y="470" text-anchor="middle" font-size="11" fill="#e8f0fe">工作区级覆盖用户级同名配置, 实现灵活定制</text>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ea4335"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">权限三道门 (Permission Gates)</text>
+
+  <!-- Hooks bar -->
+  <rect x="50" y="55" width="700" height="35" rx="6" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1"/>
+  <text x="400" y="77" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">Hooks: PreToolUse · PostToolUse · UserPromptSubmit · Stop</text>
+
+  <!-- Arrow from hooks -->
+  <line x1="400" y1="90" x2="400" y2="110" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Gate 1: Hard Reject -->
+  <rect x="50" y="115" width="200" height="120" rx="8" fill="#ea4335"/>
+  <text x="150" y="140" text-anchor="middle" font-size="15" fill="white" font-weight="bold">Gate 1</text>
+  <text x="150" y="162" text-anchor="middle" font-size="14" fill="white">硬拒绝</text>
+  <text x="150" y="185" text-anchor="middle" font-size="11" fill="white">rm -rf /</text>
+  <text x="150" y="200" text-anchor="middle" font-size="11" fill="white">fork bomb</text>
+  <text x="150" y="220" text-anchor="middle" font-size="10" fill="#fbbc04">⛔ 直接拒绝, 不可覆盖</text>
+
+  <!-- Arrow -->
+  <line x1="250" y1="175" x2="290" y2="175" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Gate 2: Rule Match -->
+  <rect x="300" y="115" width="200" height="120" rx="8" fill="#fbbc04"/>
+  <text x="400" y="140" text-anchor="middle" font-size="15" fill="#202124" font-weight="bold">Gate 2</text>
+  <text x="400" y="162" text-anchor="middle" font-size="14" fill="#202124">规则匹配</text>
+  <text x="400" y="185" text-anchor="middle" font-size="11" fill="#202124">path check</text>
+  <text x="400" y="200" text-anchor="middle" font-size="11" fill="#202124">deny/allow list</text>
+  <text x="400" y="220" text-anchor="middle" font-size="10" fill="#ea4335">规则命中 → 自动放行/拒绝</text>
+
+  <!-- Arrow -->
+  <line x1="500" y1="175" x2="540" y2="175" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Gate 3: User Approval -->
+  <rect x="550" y="115" width="200" height="120" rx="8" fill="#1a73e8"/>
+  <text x="650" y="140" text-anchor="middle" font-size="15" fill="white" font-weight="bold">Gate 3</text>
+  <text x="650" y="162" text-anchor="middle" font-size="14" fill="white">用户审批</text>
+  <text x="650" y="185" text-anchor="middle" font-size="11" fill="white">ask user</text>
+  <text x="650" y="200" text-anchor="middle" font-size="11" fill="white">y/n prompt</text>
+  <text x="650" y="220" text-anchor="middle" font-size="10" fill="#fbbc04">弹窗确认 → 用户决定</text>
+
+  <!-- Arrow down to execution -->
+  <line x1="650" y1="235" x2="650" y2="280" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 150 235 Q 150 280 400 280 L 640 280" stroke="#202124" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+  <text x="400" y="270" text-anchor="middle" font-size="11" fill="#202124">全部通过</text>
+
+  <!-- Execution -->
+  <rect x="250" y="290" width="300" height="50" rx="8" fill="#34a853"/>
+  <text x="400" y="312" text-anchor="middle" font-size="16" fill="white" font-weight="bold">✓ 执行 (Execute)</text>
+  <text x="400" y="330" text-anchor="middle" font-size="12" fill="white">handler.run(args)</text>
+
+  <!-- PostToolUse hook -->
+  <line x1="400" y1="340" x2="400" y2="370" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="270" y="375" width="260" height="40" rx="6" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1"/>
+  <text x="400" y="399" text-anchor="middle" font-size="12" fill="#1a73e8">PostToolUse Hook → 日志记录</text>
+
+  <!-- Result -->
+  <line x1="400" y1="415" x2="400" y2="440" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="300" y="445" width="200" height="35" rx="6" fill="#202124"/>
+  <text x="400" y="467" text-anchor="middle" font-size="13" fill="white">返回结果 → 模型</text>
+
+  <!-- Reject path -->
+  <path d="M 150 235 L 80 235 L 80 420 L 280 420" stroke="#ea4335" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowRed)"/>
+  <text x="80" y="330" text-anchor="middle" font-size="11" fill="#ea4335" transform="rotate(-90 80 330)">拒绝 → 返回错误</text>
+</svg>

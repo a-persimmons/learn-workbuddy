@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ea4335"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#5f6368"/>
+    </marker>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8f9fa"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bg-grad)"/>
+
+  <!-- Title -->
+  <text x="400" y="42" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Agent Loop 核心循环</text>
+  <text x="400" y="64" text-anchor="middle" font-size="13" fill="#5f6368">while True: 持续运行直到 end_turn</text>
+
+  <!-- Central circle decoration -->
+  <circle cx="400" cy="280" r="110" fill="none" stroke="#1a73e8" stroke-width="2" stroke-dasharray="4 6" opacity="0.3"/>
+
+  <!-- Node 1: 用户输入 (Top) -->
+  <rect x="305" y="100" width="190" height="52" rx="10" fill="#1a73e8"/>
+  <text x="400" y="124" text-anchor="middle" font-size="15" font-weight="600" fill="#ffffff">用户输入</text>
+  <text x="400" y="142" text-anchor="middle" font-size="11" fill="#d6e4ff">User Input</text>
+
+  <!-- Node 2: API 调用 (Right) -->
+  <rect x="560" y="220" width="190" height="52" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="655" y="244" text-anchor="middle" font-size="15" font-weight="600" fill="#1a73e8">API 调用</text>
+  <text x="655" y="262" text-anchor="middle" font-size="11" fill="#5f6368">messages → LLM</text>
+
+  <!-- Node 3: 检查 stop_reason (Bottom-Right) -->
+  <rect x="470" y="380" width="190" height="52" rx="10" fill="#fbbc04"/>
+  <text x="565" y="404" text-anchor="middle" font-size="14" font-weight="600" fill="#202124">检查 stop_reason</text>
+  <text x="565" y="422" text-anchor="middle" font-size="11" fill="#5f6368">tool_use / end_turn</text>
+
+  <!-- Node 4: 工具执行 (Bottom-Left) -->
+  <rect x="140" y="380" width="190" height="52" rx="10" fill="#34a853"/>
+  <text x="235" y="404" text-anchor="middle" font-size="15" font-weight="600" fill="#ffffff">工具执行</text>
+  <text x="235" y="422" text-anchor="middle" font-size="11" fill="#c6f6d5">Tool Execution</text>
+
+  <!-- Node 5: 结果加入 messages (Left) -->
+  <rect x="50" y="220" width="190" height="52" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="145" y="244" text-anchor="middle" font-size="14" font-weight="600" fill="#1a73e8">结果加入 messages</text>
+  <text x="145" y="262" text-anchor="middle" font-size="11" fill="#5f6368">append result</text>
+
+  <!-- Arrows: the cycle -->
+  <!-- 用户输入 → API调用 -->
+  <path d="M 460 152 Q 560 180, 560 218" fill="none" stroke="#1a73e8" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- API调用 → 检查stop_reason -->
+  <path d="M 655 272 Q 655 340, 565 378" fill="none" stroke="#1a73e8" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- 检查stop_reason → 工具执行 (tool_use branch) -->
+  <path d="M 470 406 L 330 406" fill="none" stroke="#34a853" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <rect x="360" y="350" width="80" height="22" rx="11" fill="#34a853"/>
+  <text x="400" y="366" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">tool_use</text>
+
+  <!-- 工具执行 → 结果加入messages -->
+  <path d="M 235 380 Q 235 320, 145 272" fill="none" stroke="#1a73e8" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- 结果加入messages → API调用 (loop back) -->
+  <path d="M 240 246 L 558 246" fill="none" stroke="#1a73e8" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#arrow-blue)"/>
+  <text x="400" y="238" text-anchor="middle" font-size="11" fill="#5f6368" font-style="italic">回到下一轮调用 (loop)</text>
+
+  <!-- end_turn branch → 结束 -->
+  <path d="M 565 432 Q 565 460, 535 460 L 290 460 Q 270 460, 270 440 L 270 300" fill="none" stroke="#ea4335" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <rect x="470" y="448" width="90" height="22" rx="11" fill="#ea4335"/>
+  <text x="515" y="464" text-anchor="middle" font-size="11" font-weight="600" fill="#ffffff">end_turn</text>
+
+  <!-- 结束 node -->
+  <rect x="180" y="240" width="80" height="52" rx="26" fill="none" stroke="#ea4335" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="220" y="264" text-anchor="middle" font-size="14" font-weight="700" fill="#ea4335">结束</text>
+  <text x="220" y="282" text-anchor="middle" font-size="10" fill="#ea4335">break</text>
+
+  <!-- while True label in center -->
+  <text x="400" y="276" text-anchor="middle" font-size="18" font-weight="700" fill="#1a73e8" opacity="0.15" font-family="monospace">while True</text>
+  <text x="400" y="300" text-anchor="middle" font-size="14" font-weight="600" fill="#5f6368" opacity="0.4" font-family="monospace">{ ... }</text>
+
+  <!-- Legend -->
+  <rect x="20" y="480" width="12" height="12" rx="2" fill="#1a73e8"/>
+  <text x="38" y="491" font-size="10" fill="#5f6368">主循环流</text>
+  <rect x="110" y="480" width="12" height="12" rx="2" fill="#34a853"/>
+  <text x="128" y="491" font-size="10" fill="#5f6368">工具分支</text>
+  <rect x="200" y="480" width="12" height="12" rx="2" fill="#ea4335"/>
+  <text x="218" y="491" font-size="10" fill="#5f6368">终止分支</text>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">工具分发 (Tool Dispatch)</text>
+
+  <!-- Model -->
+  <rect x="300" y="60" width="200" height="50" rx="8" fill="#1a73e8"/>
+  <text x="400" y="85" text-anchor="middle" font-size="15" fill="white" font-weight="bold">LLM 模型输出</text>
+  <text x="400" y="102" text-anchor="middle" font-size="12" fill="#e8f0fe">function_call: {name, args}</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="110" x2="400" y2="140" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Dispatch Map -->
+  <rect x="250" y="145" width="300" height="60" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="400" y="170" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a73e8">TOOL_HANDLERS (分发字典)</text>
+  <text x="400" y="190" text-anchor="middle" font-size="12" fill="#202124">{"read": ReadHandler, "write": WriteHandler, "bash": BashHandler, "grep": GrepHandler}</text>
+
+  <!-- Arrows branching -->
+  <line x1="280" y1="205" x2="140" y2="260" stroke="#202124" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="360" y1="205" x2="310" y2="260" stroke="#202124" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="440" y1="205" x2="490" y2="260" stroke="#202124" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="520" y1="205" x2="660" y2="260" stroke="#202124" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Tools -->
+  <rect x="70" y="265" width="140" height="55" rx="8" fill="#34a853"/>
+  <text x="140" y="288" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Read Tool</text>
+  <text x="140" y="306" text-anchor="middle" font-size="11" fill="white">读取文件</text>
+
+  <rect x="240" y="265" width="140" height="55" rx="8" fill="#34a853"/>
+  <text x="310" y="288" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Write Tool</text>
+  <text x="310" y="306" text-anchor="middle" font-size="11" fill="white">写入文件</text>
+
+  <rect x="420" y="265" width="140" height="55" rx="8" fill="#34a853"/>
+  <text x="490" y="288" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Bash Tool</text>
+  <text x="490" y="306" text-anchor="middle" font-size="11" fill="white">执行命令</text>
+
+  <rect x="590" y="265" width="140" height="55" rx="8" fill="#34a853"/>
+  <text x="660" y="288" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Grep Tool</text>
+  <text x="660" y="306" text-anchor="middle" font-size="11" fill="white">搜索内容</text>
+
+  <!-- Concurrent execution -->
+  <text x="400" y="355" text-anchor="middle" font-size="13" fill="#202124" font-style="italic">⚡ 并发执行 (concurrent execution)</text>
+
+  <!-- Arrows down -->
+  <line x1="140" y1="320" x2="140" y2="370" stroke="#202124" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="310" y1="320" x2="310" y2="370" stroke="#202124" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="490" y1="320" x2="490" y2="370" stroke="#202124" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="660" y1="320" x2="660" y2="370" stroke="#202124" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Results collection -->
+  <rect x="100" y="375" width="600" height="45" rx="8" fill="#fbbc04"/>
+  <text x="400" y="402" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">结果收集 (Results Collection)</text>
+
+  <!-- Arrow down to return -->
+  <line x1="400" y1="420" x2="400" y2="450" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Return to model -->
+  <rect x="280" y="455" width="240" height="35" rx="8" fill="#1a73e8"/>
+  <text x="400" y="477" text-anchor="middle" font-size="13" fill="white">tool_result → 返回模型继续推理</text>
+</svg>

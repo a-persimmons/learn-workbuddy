@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ea4335"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="400" y="34" text-anchor="middle" font-size="23" font-weight="700" fill="#202124">四层上下文压缩管线</text>
+  <text x="400" y="54" text-anchor="middle" font-size="12" fill="#5f6368">上下文 &gt; 80% → 启动压缩，逐级递进缩减 Token</text>
+
+  <!-- Trigger banner -->
+  <rect x="250" y="65" width="300" height="26" rx="13" fill="#ea4335"/>
+  <text x="400" y="83" text-anchor="middle" font-size="12" font-weight="600" fill="#ffffff">⚠ 触发条件：上下文使用量 &gt; 80%</text>
+
+  <!-- ===== Left: Pipeline stages (vertical) ===== -->
+
+  <!-- Stage 1: snip -->
+  <rect x="30" y="108" width="260" height="62" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <circle cx="58" cy="139" r="18" fill="#1a73e8"/>
+  <text x="58" y="145" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">1</text>
+  <text x="88" y="132" font-size="15" font-weight="700" fill="#1a73e8">snip (裁剪)</text>
+  <text x="88" y="150" font-size="11" fill="#5f6368">删除冗余空白、重复内容</text>
+  <text x="88" y="164" font-size="11" fill="#5f6368">移除不必要的格式化字符</text>
+
+  <!-- Arrow 1→2 -->
+  <path d="M 160 172 L 160 192" fill="none" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Stage 2: micro -->
+  <rect x="30" y="196" width="260" height="62" rx="10" fill="#fef7e0" stroke="#fbbc04" stroke-width="2"/>
+  <circle cx="58" cy="227" r="18" fill="#fbbc04"/>
+  <text x="58" y="233" text-anchor="middle" font-size="16" font-weight="700" fill="#202124">2</text>
+  <text x="88" y="220" font-size="15" font-weight="700" fill="#b06000">micro (微摘要)</text>
+  <text x="88" y="238" font-size="11" fill="#5f6368">对旧消息生成摘要替换</text>
+  <text x="88" y="252" font-size="11" fill="#5f6368">保留语义，丢弃细节</text>
+
+  <!-- Arrow 2→3 -->
+  <path d="M 160 260 L 160 280" fill="none" stroke="#fbbc04" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Stage 3: budget -->
+  <rect x="30" y="284" width="260" height="62" rx="10" fill="#e6f4ea" stroke="#34a853" stroke-width="2"/>
+  <circle cx="58" cy="315" r="18" fill="#34a853"/>
+  <text x="58" y="321" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">3</text>
+  <text x="88" y="308" font-size="15" font-weight="700" fill="#137333">budget (预算)</text>
+  <text x="88" y="326" font-size="11" fill="#5f6368">按 Token 预算分配空间</text>
+  <text x="88" y="340" font-size="11" fill="#5f6368">优先保留关键信息</text>
+
+  <!-- Arrow 3→4 -->
+  <path d="M 160 348 L 160 368" fill="none" stroke="#34a853" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Stage 4: auto -->
+  <rect x="30" y="372" width="260" height="62" rx="10" fill="#fce8e6" stroke="#ea4335" stroke-width="2"/>
+  <circle cx="58" cy="403" r="18" fill="#ea4335"/>
+  <text x="58" y="409" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">4</text>
+  <text x="88" y="396" font-size="15" font-weight="700" fill="#ea4335">auto (自动)</text>
+  <text x="88" y="414" font-size="11" fill="#5f6368">紧急压缩到 92% 以下</text>
+  <text x="88" y="428" font-size="11" fill="#5f6368">激进策略，保命优先</text>
+
+  <!-- ===== Right: Progress bar (token shrinkage) ===== -->
+  <rect x="340" y="108" width="430" height="326" rx="12" fill="#ffffff" stroke="#dadce0" stroke-width="1.5"/>
+  <text x="555" y="132" text-anchor="middle" font-size="14" font-weight="700" fill="#202124">Token 占用变化</text>
+  <text x="555" y="148" text-anchor="middle" font-size="11" fill="#5f6368">随压缩管线逐步缩减</text>
+
+  <!-- Bar 0: 200K (initial) -->
+  <text x="355" y="175" font-size="11" fill="#5f6368">初始</text>
+  <rect x="395" y="162" width="360" height="22" rx="4" fill="#ea4335"/>
+  <text x="765" y="178" text-anchor="end" font-size="12" font-weight="700" fill="#ffffff">200K</text>
+
+  <!-- Arrow -->
+  <path d="M 575 188 L 575 196" fill="none" stroke="#5f6368" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- Bar 1: 180K (after snip) -->
+  <text x="355" y="215" font-size="11" fill="#1a73e8">snip</text>
+  <rect x="395" y="202" width="324" height="22" rx="4" fill="#1a73e8"/>
+  <text x="725" y="218" text-anchor="end" font-size="12" font-weight="700" fill="#ffffff">180K</text>
+
+  <!-- Arrow -->
+  <path d="M 557 228 L 557 236" fill="none" stroke="#5f6368" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- Bar 2: 120K (after micro) -->
+  <text x="355" y="255" font-size="11" fill="#b06000">micro</text>
+  <rect x="395" y="242" width="216" height="22" rx="4" fill="#fbbc04"/>
+  <text x="617" y="258" text-anchor="end" font-size="12" font-weight="700" fill="#202124">120K</text>
+
+  <!-- Arrow -->
+  <path d="M 503 268 L 503 276" fill="none" stroke="#5f6368" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- Bar 3: 80K (after budget) -->
+  <text x="355" y="295" font-size="11" fill="#137333">budget</text>
+  <rect x="395" y="282" width="144" height="22" rx="4" fill="#34a853"/>
+  <text x="545" y="298" text-anchor="end" font-size="12" font-weight="700" fill="#ffffff">80K</text>
+
+  <!-- Arrow -->
+  <path d="M 467 308 L 467 316" fill="none" stroke="#5f6368" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- Bar 4: 50K (after auto) -->
+  <text x="355" y="335" font-size="11" fill="#ea4335">auto</text>
+  <rect x="395" y="322" width="90" height="22" rx="4" fill="#ea4335"/>
+  <text x="491" y="338" text-anchor="end" font-size="12" font-weight="700" fill="#ffffff">50K</text>
+
+  <!-- Threshold line at 80% -->
+  <line x1="395" y1="358" x2="755" y2="358" stroke="#ea4335" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="395" y="372" font-size="10" fill="#ea4335" font-weight="600">80% 阈值线</text>
+
+  <!-- Summary -->
+  <rect x="355" y="385" width="400" height="38" rx="8" fill="#e6f4ea"/>
+  <text x="555" y="403" text-anchor="middle" font-size="13" font-weight="700" fill="#137333">200K → 50K</text>
+  <text x="555" y="418" text-anchor="middle" font-size="11" fill="#5f6368">总缩减 75%，关键信息保留</text>
+
+  <!-- Bottom note -->
+  <rect x="30" y="448" width="740" height="38" rx="8" fill="#202124"/>
+  <text x="400" y="467" text-anchor="middle" font-size="12" fill="#ffffff">管线策略：从温和裁剪到激进压缩，逐级递进，在信息保留与空间回收间取得平衡</text>
+  <text x="400" y="481" text-anchor="middle" font-size="10" fill="#9aa0a6">每层仅在上一层不足以释放足够空间时才触发</text>
+</svg>

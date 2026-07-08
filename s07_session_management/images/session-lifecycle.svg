@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">会话生命周期 (Session Lifecycle)</text>
+
+  <!-- Create Session -->
+  <rect x="30" y="65" width="130" height="50" rx="8" fill="#1a73e8"/>
+  <text x="95" y="88" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Create Session</text>
+  <text x="95" y="105" text-anchor="middle" font-size="11" fill="#e8f0fe">分配 session_id</text>
+
+  <line x1="160" y1="90" x2="195" y2="90" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Spawn CLI -->
+  <rect x="200" y="65" width="130" height="50" rx="8" fill="#7b1fa2"/>
+  <text x="265" y="88" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Spawn CLI</text>
+  <text x="265" y="105" text-anchor="middle" font-size="11" fill="#e8e0f0">PTY / pipe</text>
+
+  <line x1="330" y1="90" x2="365" y2="90" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Agent Loop -->
+  <rect x="370" y="65" width="130" height="50" rx="8" fill="#34a853"/>
+  <text x="435" y="88" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Agent Loop</text>
+  <text x="435" y="105" text-anchor="middle" font-size="11" fill="white">推理 → 工具 → 循环</text>
+
+  <line x1="500" y1="90" x2="535" y2="90" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Pause/Resume -->
+  <rect x="540" y="65" width="110" height="50" rx="8" fill="#fbbc04"/>
+  <text x="595" y="85" text-anchor="middle" font-size="12" fill="#202124" font-weight="bold">Pause/Resume</text>
+  <text x="595" y="103" text-anchor="middle" font-size="11" fill="#202124">挂起 / 恢复</text>
+
+  <line x1="650" y1="90" x2="685" y2="90" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- End -->
+  <rect x="690" y="65" width="100" height="50" rx="8" fill="#ea4335"/>
+  <text x="740" y="88" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Session End</text>
+  <text x="740" y="105" text-anchor="middle" font-size="11" fill="white">清理资源</text>
+
+  <!-- Parallel sessions -->
+  <text x="400" y="150" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">并行会话 (Parallel Sessions)</text>
+
+  <!-- Session A -->
+  <rect x="40" y="170" width="230" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="40" y="170" width="230" height="30" rx="8" fill="#1a73e8"/>
+  <rect x="40" y="185" width="230" height="15" fill="#1a73e8"/>
+  <text x="155" y="190" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Session A · coding</text>
+  <text x="60" y="225" font-size="11" fill="#202124">state: ● active</text>
+  <text x="60" y="245" font-size="11" fill="#202124">cwd: ~/project-a</text>
+  <text x="60" y="265" font-size="11" fill="#202124">model: claude-sonnet</text>
+  <text x="60" y="282" font-size="11" fill="#34a853">turns: 15 · tokens: 12.3k</text>
+
+  <!-- Session B -->
+  <rect x="285" y="170" width="230" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="285" y="170" width="230" height="30" rx="8" fill="#1a73e8"/>
+  <rect x="285" y="185" width="230" height="15" fill="#1a73e8"/>
+  <text x="400" y="190" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Session B · writing</text>
+  <text x="305" y="225" font-size="11" fill="#202124">state: ❚❚ paused</text>
+  <text x="305" y="245" font-size="11" fill="#202124">cwd: ~/docs</text>
+  <text x="305" y="265" font-size="11" fill="#202124">model: gpt-4o</text>
+  <text x="305" y="282" font-size="11" fill="#fbbc04">turns: 8 · tokens: 5.1k</text>
+
+  <!-- Session C -->
+  <rect x="530" y="170" width="230" height="120" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="530" y="170" width="230" height="30" rx="8" fill="#1a73e8"/>
+  <rect x="530" y="185" width="230" height="15" fill="#1a73e8"/>
+  <text x="645" y="190" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Session C · debug</text>
+  <text x="550" y="225" font-size="11" fill="#202124">state: ● active</text>
+  <text x="550" y="245" font-size="11" fill="#202124">cwd: ~/project-b</text>
+  <text x="550" y="265" font-size="11" fill="#202124">model: claude-sonnet</text>
+  <text x="550" y="282" font-size="11" fill="#34a853">turns: 23 · tokens: 18.7k</text>
+
+  <!-- State machine -->
+  <text x="400" y="325" text-anchor="middle" font-size="16" fill="#202124" font-weight="bold">状态机</text>
+
+  <rect x="80" y="345" width="100" height="40" rx="20" fill="#34a853"/>
+  <text x="130" y="370" text-anchor="middle" font-size="13" fill="white" font-weight="bold">active</text>
+
+  <line x1="180" y1="365" x2="225" y2="365" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="202" y="358" text-anchor="middle" font-size="10" fill="#202124">pause</text>
+
+  <rect x="230" y="345" width="100" height="40" rx="20" fill="#fbbc04"/>
+  <text x="280" y="370" text-anchor="middle" font-size="13" fill="#202124" font-weight="bold">paused</text>
+
+  <line x1="330" y1="365" x2="375" y2="365" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="352" y="358" text-anchor="middle" font-size="10" fill="#202124">resume</text>
+
+  <rect x="380" y="345" width="100" height="40" rx="20" fill="#34a853"/>
+  <text x="430" y="370" text-anchor="middle" font-size="13" fill="white" font-weight="bold">active</text>
+
+  <line x1="480" y1="365" x2="525" y2="365" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="502" y="358" text-anchor="middle" font-size="10" fill="#ea4335">end</text>
+
+  <rect x="530" y="345" width="100" height="40" rx="20" fill="#ea4335"/>
+  <text x="580" y="370" text-anchor="middle" font-size="13" fill="white" font-weight="bold">ended</text>
+
+  <!-- JSONL persistence -->
+  <rect x="200" y="410" width="400" height="60" rx="8" fill="#202124"/>
+  <text x="400" y="435" text-anchor="middle" font-size="13" fill="white" font-weight="bold">JSONL 会话持久化</text>
+  <text x="400" y="455" text-anchor="middle" font-size="11" fill="#e8f0fe">每条消息一行 JSON, 保存至 sessions/{session_id}.jsonl</text>
+
+  <line x1="130" y1="385" x2="300" y2="410" stroke="#1a73e8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+  <line x1="430" y1="385" x2="500" y2="410" stroke="#1a73e8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+</svg>

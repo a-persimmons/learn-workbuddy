@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.env
+.memory/
+.transcripts/
+.task_outputs/
+.tasks/
+.audit-log/
+.workbuddy/
+*.db
+*.db-wal
+*.db-shm
+
+# Node (for s04+ lessons)
+node_modules/

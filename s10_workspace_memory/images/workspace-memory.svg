@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">工作区记忆系统</text>
+
+  <!-- Directory tree -->
+  <rect x="50" y="55" width="350" height="300" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="50" y="55" width="350" height="35" rx="8" fill="#1a73e8"/>
+  <rect x="50" y="72" width="350" height="18" fill="#1a73e8"/>
+  <text x="225" y="77" text-anchor="middle" font-size="14" fill="white" font-weight="bold">.workbuddy/memory/</text>
+
+  <text x="75" y="115" font-size="13" fill="#202124" font-family="monospace">📁 memory/</text>
+
+  <line x1="85" y1="125" x2="85" y2="330" stroke="#1a73e8" stroke-width="1.5"/>
+
+  <!-- Daily logs -->
+  <rect x="100" y="130" width="170" height="35" rx="4" fill="#34a853" opacity="0.15" stroke="#34a853" stroke-width="1"/>
+  <text x="115" y="152" font-size="12" fill="#202124" font-family="monospace">📄 2026-07-08.md</text>
+
+  <rect x="100" y="170" width="170" height="35" rx="4" fill="#f8f9fa" stroke="#34a853" stroke-width="1"/>
+  <text x="115" y="192" font-size="12" fill="#202124" font-family="monospace">📄 2026-07-07.md</text>
+
+  <rect x="100" y="210" width="170" height="35" rx="4" fill="#f8f9fa" stroke="#34a853" stroke-width="1"/>
+  <text x="115" y="232" font-size="12" fill="#202124" font-family="monospace">📄 2026-07-06.md</text>
+
+  <text x="115" y="260" font-size="11" fill="#202124" font-style="italic">... 30 天内的日志 ...</text>
+
+  <rect x="100" y="275" width="170" height="35" rx="4" fill="#f8f9fa" stroke="#34a853" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="115" y="297" font-size="12" fill="#999" font-family="monospace">📄 2026-06-08.md</text>
+
+  <text x="115" y="325" font-size="11" fill="#ea4335">超过30天 → 蒸馏后不再直接加载</text>
+
+  <!-- MEMORY.md -->
+  <rect x="480" y="55" width="280" height="200" rx="8" fill="#fbbc04" opacity="0.2" stroke="#fbbc04" stroke-width="2"/>
+  <rect x="480" y="55" width="280" height="35" rx="8" fill="#fbbc04"/>
+  <rect x="480" y="72" width="280" height="18" fill="#fbbc04"/>
+  <text x="620" y="77" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">MEMORY.md</text>
+
+  <text x="500" y="115" font-size="12" fill="#202124">🎯 策展的长期记忆</text>
+  <text x="500" y="135" font-size="11" fill="#202124">· 项目核心架构决策</text>
+  <text x="500" y="155" font-size="11" fill="#202124">· 关键技术选型及原因</text>
+  <text x="500" y="175" font-size="11" fill="#202124">· 重要约定与命名规范</text>
+  <text x="500" y="195" font-size="11" fill="#202124">· 已知陷阱与解决方案</text>
+  <text x="500" y="215" font-size="11" fill="#202124">· 跨会话的关键上下文</text>
+  <text x="500" y="240" font-size="11" fill="#fbbc04" font-weight="bold">精炼摘要, 非全量日志</text>
+
+  <!-- Distillation flow -->
+  <text x="400" y="150" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">30天后</text>
+  <line x1="280" y1="140" x2="380" y2="160" stroke="#1a73e8" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowBlue)"/>
+
+  <rect x="360" y="165" width="80" height="35" rx="6" fill="#1a73e8"/>
+  <text x="400" y="187" text-anchor="middle" font-size="12" fill="white" font-weight="bold">蒸馏</text>
+
+  <line x1="440" y1="180" x2="475" y2="140" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Append-only indicator -->
+  <rect x="450" y="300" width="310" height="90" rx="8" fill="#34a853" opacity="0.1" stroke="#34a853" stroke-width="1.5"/>
+  <text x="605" y="325" text-anchor="middle" font-size="13" fill="#34a853" font-weight="bold">日志文件特性</text>
+  <text x="470" y="345" font-size="11" fill="#202124">✓ append-only (只追加, 不修改)</text>
+  <text x="470" y="363" font-size="11" fill="#202124">✓ 每日一个文件, 按日期命名</text>
+  <text x="470" y="381" font-size="11" fill="#202124">✓ 自动记录关键事件与决策</text>
+
+  <!-- Prompt injection -->
+  <rect x="50" y="375" width="350" height="95" rx="8" fill="#1a73e8" opacity="0.1" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="225" y="400" text-anchor="middle" font-size="13" fill="#1a73e8" font-weight="bold">Prompt 注入策略</text>
+  <text x="70" y="420" font-size="11" fill="#202124">每次会话自动加载:</text>
+  <text x="70" y="438" font-size="11" fill="#202124">· MEMORY.md (长期记忆)</text>
+  <text x="70" y="456" font-size="11" fill="#202124">· 今日日志 (当前上下文)</text>
+
+  <!-- Arrows from memory to prompt -->
+  <line x1="480" y1="255" x2="300" y2="375" stroke="#1a73e8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+  <line x1="180" y1="165" x2="180" y2="375" stroke="#34a853" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+</svg>

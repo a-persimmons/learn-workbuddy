@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34a853"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">云端记忆</text>
+
+  <!-- Left side: Server-side Profile -->
+  <rect x="30" y="60" width="340" height="180" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <rect x="30" y="60" width="340" height="35" rx="8" fill="#1a73e8"/>
+  <rect x="30" y="77" width="340" height="18" fill="#1a73e8"/>
+  <text x="200" y="82" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Server-side Profile</text>
+
+  <text x="50" y="120" font-size="12" fill="#202124">🤖 自动生成的用户摘要</text>
+  <text x="50" y="140" font-size="11" fill="#202124">· 从历史对话中提取关键信息</text>
+  <text x="50" y="158" font-size="11" fill="#202124">· 偏好、项目、常用模式</text>
+  <text x="50" y="176" font-size="11" fill="#202124">· 服务端维护, 定期更新</text>
+  <text x="50" y="194" font-size="11" fill="#202124">· 非实时, 是聚合摘要</text>
+
+  <rect x="50" y="205" width="300" height="25" rx="4" fill="#34a853" opacity="0.2"/>
+  <text x="200" y="222" text-anchor="middle" font-size="11" fill="#34a853" font-weight="bold">会话开始时自动注入</text>
+
+  <line x1="200" y1="240" x2="200" y2="260" stroke="#34a853" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Session start -->
+  <rect x="80" y="265" width="240" height="35" rx="8" fill="#34a853"/>
+  <text x="200" y="288" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Session Start ← 注入 Profile</text>
+
+  <!-- Right side: on-demand recall -->
+  <rect x="430" y="60" width="340" height="180" rx="8" fill="#fbbc04" opacity="0.15" stroke="#fbbc04" stroke-width="2"/>
+  <rect x="430" y="60" width="340" height="35" rx="8" fill="#fbbc04"/>
+  <rect x="430" y="77" width="340" height="18" fill="#fbbc04"/>
+  <text x="600" y="82" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">On-demand Recall</text>
+
+  <text x="450" y="120" font-size="12" fill="#202124">🔍 搜索所有历史对话</text>
+  <text x="450" y="140" font-size="11" fill="#202124">· 跨项目, 跨时间检索</text>
+  <text x="450" y="158" font-size="11" fill="#202124">· 全文搜索 + 语义排序</text>
+  <text x="450" y="176" font-size="11" fill="#202124">· 返回排名靠前的结果</text>
+  <text x="450" y="194" font-size="11" fill="#202124">· 按相关度排序</text>
+
+  <rect x="450" y="205" width="300" height="25" rx="4" fill="#1a73e8" opacity="0.15"/>
+  <text x="600" y="222" text-anchor="middle" font-size="11" fill="#1a73e8" font-weight="bold">按需调用, 结果注入上下文</text>
+
+  <line x1="600" y1="240" x2="600" y2="260" stroke="#1a73e8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Search results -->
+  <rect x="460" y="265" width="280" height="35" rx="8" fill="#1a73e8"/>
+  <text x="600" y="288" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Ranked Results → 注入上下文</text>
+
+  <!-- Flow: User asks -->
+  <rect x="200" y="320" width="400" height="40" rx="8" fill="#202124"/>
+  <text x="400" y="345" text-anchor="middle" font-size="13" fill="white">👤 用户: "我们之前讨论过什么?"</text>
+
+  <!-- Flow arrows -->
+  <line x1="300" y1="360" x2="200" y2="380" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="500" y1="360" x2="600" y2="380" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <text x="200" y="395" text-anchor="middle" font-size="11" fill="#1a73e8">Profile 已在上下文中</text>
+  <text x="600" y="395" text-anchor="middle" font-size="11" fill="#1a73e8">触发历史召回</text>
+
+  <!-- Combined result -->
+  <rect x="150" y="410" width="500" height="65" rx="8" fill="#34a853" opacity="0.15" stroke="#34a853" stroke-width="2"/>
+  <text x="400" y="435" text-anchor="middle" font-size="14" fill="#34a853" font-weight="bold">融合记忆 → 生成回答</text>
+  <text x="400" y="455" text-anchor="middle" font-size="11" fill="#202124">云端 Profile (全局摘要) + 历史召回 (相关片段) → 完整上下文</text>
+  <text x="400" y="470" text-anchor="middle" font-size="11" fill="#202124">模型基于融合记忆回答: "我们在项目A中讨论过..."</text>
+</svg>

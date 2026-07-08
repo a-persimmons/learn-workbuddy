@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#202124"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a73e8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="500" fill="#f8f9fa"/>
+
+  <text x="400" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#202124">Prompt 运行时组装</text>
+
+  <!-- Assembly line segments -->
+  <!-- Row 1 -->
+  <rect x="20" y="70" width="120" height="55" rx="6" fill="#7b1fa2"/>
+  <text x="80" y="95" text-anchor="middle" font-size="12" fill="white" font-weight="bold">[Persona]</text>
+  <text x="80" y="112" text-anchor="middle" font-size="10" fill="#e8e0f0">人格设定</text>
+
+  <text x="150" y="102" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="170" y="70" width="120" height="55" rx="6" fill="#1a73e8"/>
+  <text x="230" y="95" text-anchor="middle" font-size="11" fill="white" font-weight="bold">[User Memory]</text>
+  <text x="230" y="112" text-anchor="middle" font-size="10" fill="#e8f0fe">用户记忆</text>
+
+  <text x="300" y="102" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="320" y="70" width="120" height="55" rx="6" fill="#1a73e8"/>
+  <text x="380" y="95" text-anchor="middle" font-size="10" fill="white" font-weight="bold">[Workspace Mem]</text>
+  <text x="380" y="112" text-anchor="middle" font-size="10" fill="#e8f0fe">工作区记忆</text>
+
+  <text x="450" y="102" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="470" y="70" width="120" height="55" rx="6" fill="#34a853"/>
+  <text x="530" y="95" text-anchor="middle" font-size="11" fill="white" font-weight="bold">[Cloud Profile]</text>
+  <text x="530" y="112" text-anchor="middle" font-size="10" fill="white">云端画像</text>
+
+  <text x="600" y="102" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="620" y="70" width="120" height="55" rx="6" fill="#fbbc04"/>
+  <text x="680" y="95" text-anchor="middle" font-size="12" fill="#202124" font-weight="bold">[Skills List]</text>
+  <text x="680" y="112" text-anchor="middle" font-size="10" fill="#202124">技能列表</text>
+
+  <!-- Row 2 -->
+  <rect x="20" y="150" width="120" height="55" rx="6" fill="#ea4335"/>
+  <text x="80" y="175" text-anchor="middle" font-size="11" fill="white" font-weight="bold">[Expert Config]</text>
+  <text x="80" y="192" text-anchor="middle" font-size="10" fill="white">专家配置</text>
+
+  <text x="150" y="182" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="170" y="150" width="120" height="55" rx="6" fill="#ea4335"/>
+  <text x="230" y="175" text-anchor="middle" font-size="12" fill="white" font-weight="bold">[Tools Info]</text>
+  <text x="230" y="192" text-anchor="middle" font-size="10" fill="white">工具信息</text>
+
+  <text x="300" y="182" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="320" y="150" width="120" height="55" rx="6" fill="#7b1fa2"/>
+  <text x="380" y="175" text-anchor="middle" font-size="11" fill="white" font-weight="bold">[Working Dir]</text>
+  <text x="380" y="192" text-anchor="middle" font-size="10" fill="#e8e0f0">工作目录</text>
+
+  <text x="450" y="182" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="470" y="150" width="120" height="55" rx="6" fill="#fbbc04"/>
+  <text x="530" y="175" text-anchor="middle" font-size="11" fill="#202124" font-weight="bold">[Hooks]</text>
+  <text x="530" y="192" text-anchor="middle" font-size="10" fill="#202124">钩子规则</text>
+
+  <text x="600" y="182" text-anchor="middle" font-size="18" fill="#202124">+</text>
+
+  <rect x="620" y="150" width="120" height="55" rx="6" fill="#34a853"/>
+  <text x="680" y="175" text-anchor="middle" font-size="11" fill="white" font-weight="bold">[MCP Tools]</text>
+  <text x="680" y="192" text-anchor="middle" font-size="10" fill="white">连接器工具</text>
+
+  <!-- Funnel -->
+  <polygon points="50,230 750,230 600,290 200,290" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="400" y="265" text-anchor="middle" font-size="14" fill="#1a73e8" font-weight="bold">运行时拼装 (Runtime Assembly)</text>
+  <text x="400" y="283" text-anchor="middle" font-size="11" fill="#202124">每次会话动态组合, 非静态模板</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="290" x2="400" y2="320" stroke="#1a73e8" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Final System Prompt -->
+  <rect x="150" y="325" width="500" height="70" rx="8" fill="#1a73e8"/>
+  <text x="400" y="350" text-anchor="middle" font-size="16" fill="white" font-weight="bold">Final System Prompt</text>
+  <text x="400" y="370" text-anchor="middle" font-size="12" fill="#e8f0fe">= Persona + Memory + Profile + Skills + Expert + Tools + Hooks + ...</text>
+  <text x="400" y="387" text-anchor="middle" font-size="11" fill="#e8f0fe">组合后的完整系统提示词发送给 LLM</text>
+
+  <!-- Arrow to LLM -->
+  <line x1="400" y1="395" x2="400" y2="420" stroke="#202124" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- LLM -->
+  <rect x="300" y="425" width="200" height="45" rx="8" fill="#202124"/>
+  <text x="400" y="453" text-anchor="middle" font-size="14" fill="white" font-weight="bold">→ LLM 推理</text>
+
+  <!-- Notes -->
+  <text x="50" y="440" font-size="11" fill="#202124">✓ 按需加载: 只包含</text>
+  <text x="50" y="455" font-size="11" fill="#202124">  相关的段落</text>
+  <text x="50" y="470" font-size="11" fill="#202124">✓ 可缓存重复段落</text>
+
+  <text x="580" y="440" font-size="11" fill="#202124">✓ 工具列表随配置变化</text>
+  <text x="580" y="455" font-size="11" fill="#202124">✓ 专家可替换整个段落</text>
+  <text x="580" y="470" font-size="11" fill="#202124">✓ 总长度受 token 限制</text>
+</svg>
