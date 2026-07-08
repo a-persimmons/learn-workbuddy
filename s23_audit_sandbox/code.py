@@ -52,6 +52,7 @@ except ImportError:
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from mini_workbuddy.paths import tutorial_workbuddy_home
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"):
@@ -70,7 +71,7 @@ if not MODEL:
 # ============================================================
 
 GENESIS_HASH = "0" * 64  # First entry has prev_hash = 64 zeros
-AUDIT_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy")) / "audit-log"
+AUDIT_DIR = tutorial_workbuddy_home() / "audit-log"
 AUDIT_DIR.mkdir(parents=True, exist_ok=True)
 
 

@@ -33,6 +33,7 @@ Thumbs.db
 .tasks/
 .audit-log/
 .workbuddy/
+.learn_workbuddy/
 *.db
 *.db-wal
 *.db-shm

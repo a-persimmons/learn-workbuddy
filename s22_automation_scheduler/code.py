@@ -54,6 +54,7 @@ except ImportError:
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from mini_workbuddy.paths import tutorial_workbuddy_home
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"):
@@ -71,7 +72,7 @@ if not MODEL:
 # 1. Database (reuses s21 schema, focuses on automations)
 # ============================================================
 
-DB_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy"))
+DB_DIR = tutorial_workbuddy_home()
 DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / "workbuddy.db"
 

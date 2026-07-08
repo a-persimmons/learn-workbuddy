@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import py_compile
+import sqlite3
 import subprocess
 import sys
 from pathlib import Path
@@ -124,6 +125,47 @@ def test_chapter_provider_deepseek_is_accepted_before_key_check(root: Path, tmp_
     )
     assert result.returncode == 0, result.stdout[-2000:]
     assert "python3 s01_agent_loop/code.py --provider deepseek" in result.stdout
+
+
+def test_s24_does_not_collide_with_existing_real_workbuddy_db(root: Path, tmp_path: Path) -> None:
+    real_home = tmp_path / "home"
+    real_wb = real_home / ".workbuddy"
+    real_wb.mkdir(parents=True)
+    con = sqlite3.connect(real_wb / "workbuddy.db")
+    con.execute(
+        """
+        CREATE TABLE sessions (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            cwd TEXT,
+            title TEXT,
+            status TEXT,
+            model TEXT,
+            created_at TEXT,
+            updated_at TEXT
+        )
+        """
+    )
+    con.commit()
+    con.close()
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join([str(root / "tests" / "stubs"), str(root)])
+    env["HOME"] = str(real_home)
+    env["MODEL_ID"] = "offline-test-model"
+    env.pop("WORKBUDDY_HOME", None)
+    result = subprocess.run(
+        [sys.executable, "s24_comprehensive/code.py"],
+        input="q\n",
+        cwd=root,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stdout[-2000:]
+    assert (real_home / ".learn_workbuddy" / "workbuddy.db").exists()
 
 
 @pytest.mark.parametrize(

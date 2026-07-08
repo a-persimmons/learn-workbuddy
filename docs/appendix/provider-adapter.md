@@ -83,6 +83,9 @@ python examples/mini_workbuddy_demo/code.py --mode real --provider offline
 python examples/mini_workbuddy_demo/code.py --mode real --provider deepseek
 python s01_agent_loop/code.py --provider deepseek
 
+# 章节脚本默认写入 ~/.learn_workbuddy/，避免和真实 WorkBuddy 的 ~/.workbuddy/ 撞库。
+# 需要临时目录时可加：WORKBUDDY_HOME=/tmp/learn-workbuddy
+
 # 真实 Anthropic
 python examples/mini_workbuddy_demo/code.py --mode real --provider anthropic
 

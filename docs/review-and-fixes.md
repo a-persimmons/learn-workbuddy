@@ -39,9 +39,9 @@ demo 在模块顶层 `from anthropic import Anthropic`，导致声称"无需 API
 
 ### 5. [中] 章节状态写用户真实 home，测试有污染风险
 
-6 个章节硬编码 `Path.home() / ".workbuddy"`，跑教程会往真实 home 写文件，且测试难以隔离。
-修复：改为 `Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy"))`，可用环境变量重定向到临时目录。
-回归测试：`test_chapters_do_not_touch_real_home_at_import`。
+6 个章节硬编码 `Path.home() / ".workbuddy"`，跑教程会往真实 home 写文件，且可能和本机已安装 WorkBuddy 的 SQLite schema 撞库。
+修复：改为 `mini_workbuddy.paths.tutorial_workbuddy_home()`，默认写入 `~/.learn_workbuddy/`；仍可用 `WORKBUDDY_HOME` 重定向到临时目录。
+回归测试：`test_chapters_do_not_touch_real_home_at_import`、`test_s24_does_not_collide_with_existing_real_workbuddy_db`。
 
 ### 6. [低] 文档数字不一致
 

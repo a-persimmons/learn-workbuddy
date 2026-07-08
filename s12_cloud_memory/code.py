@@ -69,6 +69,7 @@ except ImportError:
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from mini_workbuddy.paths import tutorial_workbuddy_home
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
@@ -105,7 +106,7 @@ CLOUD_PROFILE = """用户画像 (服务端生成, 自动维护)
 领域: AI agent harness 工程, 桌面应用架构"""
 
 # Simulated local cache path
-MEMORY_CACHE_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy")) / "memory"
+MEMORY_CACHE_DIR = tutorial_workbuddy_home() / "memory"
 MEMORY_CACHE_FILE = MEMORY_CACHE_DIR / "profile.md"
 
 

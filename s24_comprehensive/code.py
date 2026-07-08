@@ -51,6 +51,7 @@ from mini_workbuddy.chapter_demo import prepare_chapter_provider as _wb_prepare_
 _wb_prepare_chapter_provider()
 import os, sys, time, json, hashlib, sqlite3, subprocess
 from datetime import datetime
+from itertools import islice
 from pathlib import Path
 
 try:
@@ -64,6 +65,7 @@ except ImportError:
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from mini_workbuddy.paths import tutorial_workbuddy_home
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"):
@@ -81,7 +83,7 @@ if not MODEL:
 # LAYER 1: Persistence (s21 SQLite + s23 Audit)
 # ============================================================
 
-DB_DIR = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy"))
+DB_DIR = tutorial_workbuddy_home()
 DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / "workbuddy.db"
 AUDIT_DIR = DB_DIR / "audit-log"
@@ -370,7 +372,7 @@ TOOL_HANDLERS = {
     "bash": lambda inp: run_bash(inp["command"]),
     "read_file": lambda inp: Path(inp["path"]).read_text()[:10000] if Path(inp["path"]).exists() else "File not found",
     "write_file": lambda inp: (Path(inp["path"]).write_text(inp["content"]), "File written")[1],
-    "list_files": lambda inp: "\n".join(str(p) for p in Path(inp.get("path", ".")).iterdir()[:50]),
+    "list_files": lambda inp: "\n".join(str(p) for p in islice(Path(inp.get("path", ".")).iterdir(), 50)),
 }
 
 TOOLS = [

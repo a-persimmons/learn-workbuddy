@@ -82,6 +82,7 @@ except ImportError:
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from mini_workbuddy.paths import tutorial_workbuddy_home
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"): os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
@@ -159,7 +160,7 @@ def build_identity() -> str | None:
     Teaching version: check if they exist, read and inject.
     """
     parts = []
-    identity_dir = Path(os.environ.get("WORKBUDDY_HOME", Path.home() / ".workbuddy"))
+    identity_dir = tutorial_workbuddy_home()
 
     for name, filename in [("SOUL", "persona/core.md"),
                             ("IDENTITY", "persona/identity.md"),

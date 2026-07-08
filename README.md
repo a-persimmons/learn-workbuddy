@@ -216,6 +216,9 @@ python3 s01_agent_loop/code.py --provider deepseek
 python3 s24_comprehensive/code.py --provider deepseek
 ```
 
+教学章节的运行状态默认写入 `~/.learn_workbuddy/`，不会碰你本机真实 WorkBuddy 的 `~/.workbuddy/`。
+需要指定目录时可以设置 `WORKBUDDY_HOME=/tmp/learn-workbuddy python3 s24_comprehensive/code.py --provider deepseek`。
+
 也可以使用 Anthropic 或 OpenAI：
 
 ```sh
