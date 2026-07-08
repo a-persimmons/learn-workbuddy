@@ -4,8 +4,6 @@
 
 这个仓库不是产品源码镜像，也不是闭源实现搬运。它是一个 clean-room 教学项目：用原创 Python 代码、可运行 demo 和 27 张架构图，把一个 **WorkBuddy-style desktop AI agent harness** 背后的 agent loop、tool calling、memory system、sidecar runtime、permission hooks、audit log、DeepSeek/OpenAI/Anthropic provider adapter 和 benchmark trace，从最小 `while True` 一步步搭出来。
 
-English: a runnable Python tutorial for building a desktop AI agent harness, covering agent loops, tool use, context engineering, long-term memory, local sidecars, sandboxed execution, OpenAI/DeepSeek/Anthropic providers, and reproducible eval traces.
-
 > Agency 来自模型，Harness 让 agency 落地。
 >
 > 本教程基于 WorkBuddy 的架构设计与公开文档编写。代码为 Python 教学实现，非源码提取。
