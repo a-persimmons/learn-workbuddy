@@ -14,12 +14,12 @@ The suite creates isolated temp homes and runs:
 
 | Provider | Cases |
 |---|---|
-| `deepseek` | mini harness, full tour, and Anthropic-compatible lesson scripts. |
-| `openai-chat` | mini harness and full tour through the provider adapter. |
+| `deepseek` | mini harness, full tour, and `s01`-`s24` chapter eval traces. |
+| `openai-chat` | mini harness, full tour, and `s01`-`s24` chapter eval traces through the provider adapter. |
 
-The OpenAI-compatible chapter boundary is intentional: most chapter scripts are
-Anthropic-compatible teaching files; GPT gateway parity is taught in
-`mini_workbuddy.providers` and `examples/full_tour`.
+Each chapter has its own interactive teaching CLI and a shared `--eval` entrypoint.
+The benchmark uses `--eval` so every provider writes a comparable model/tool
+trajectory under `benchmark-runs/<run>/traces/`.
 
 ## Required Pass Markers
 
@@ -27,16 +27,17 @@ Anthropic-compatible teaching files; GPT gateway parity is taught in
 |---|---|
 | mini | `Audit verified: True` and `Transcript events:` |
 | full | `RESULT: OK`, `provider_probe: true`, and audit verification |
-| lesson | scripted completion marker such as `DONE`, or a chapter-specific success marker |
+| lesson | non-empty JSONL trace with `model_response`, `tool_call`, `tool_result`, and `case_end` events |
 
 ## Sanitized Example Summary
 
 ```text
-total cases: 24
-passed: 24
+total cases: 52
+passed: 52
 failed: 0
 providers: deepseek, openai-chat
 raw stdout: stored locally under benchmark-runs/<run>/stdout/
+raw traces: stored locally under benchmark-runs/<run>/traces/
 ```
 
 ## Publication Rule

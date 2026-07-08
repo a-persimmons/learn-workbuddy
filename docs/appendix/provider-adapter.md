@@ -95,10 +95,11 @@ python examples/mini_workbuddy_demo/code.py --mode real --provider openai
 # OpenAI-compatible 网关
 python examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 python examples/full_tour/code.py --provider openai-chat
+python s03_deferred_loading/code.py --eval --provider openai-chat
 
 # 一键真实 API 冒烟，需 key
 python scripts/run_real_smoke.py --provider openai --targets mini full
-python scripts/run_real_smoke.py --provider openai-chat --targets mini full
+python scripts/run_real_smoke.py --provider openai-chat --targets mini full all-lessons
 python scripts/run_real_smoke.py --provider deepseek --targets all-lessons
 ```
 
@@ -109,7 +110,7 @@ python scripts/run_real_smoke.py --provider deepseek --targets all-lessons
 - `mini_workbuddy/providers.py`：三个 provider 和 `select_provider`。
 - `examples/mini_workbuddy_demo/code.py`：同一个 real loop 跑多个 provider。
 - `tests/test_providers.py`：provider 选择、schema 翻译、fake-client 解析、离线完整 loop。
-- `scripts/run_real_smoke.py`：手动真实 API 冒烟。
+- `scripts/run_real_smoke.py`：手动真实 API 冒烟，`all-lessons` 使用每章统一 `--eval` 入口。
 
 ## 官方资料
 

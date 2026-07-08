@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yml", ".yaml", ".json", ".example", ".svg"}
-SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", "benchmark-runs"}
+SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", ".workbuddy_eval", "benchmark-runs"}
 SKIP_PREFIXES = {("docs", "plans")}
 NO_PROXY_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
@@ -222,7 +222,31 @@ def run_chapter_demo_smokes() -> None:
             timeout=10,
         )
         if "本章 demo 完成" not in out:
-            raise SystemExit(f"Chapter demo missing completion marker: {script.relative_to(ROOT)}")
+                raise SystemExit(f"Chapter demo missing completion marker: {script.relative_to(ROOT)}")
+
+
+def run_chapter_eval_smokes() -> None:
+    with tempfile.TemporaryDirectory(prefix="learn-workbuddy-eval-") as tmp:
+        base = Path(tmp)
+        for script in sorted(ROOT.glob("s[0-9][0-9]_*/code.py")):
+            trace = base / "traces" / f"{script.parent.name}.jsonl"
+            out = run_capture(
+                [
+                    sys.executable,
+                    script.relative_to(ROOT).as_posix(),
+                    "--eval",
+                    "--provider",
+                    "offline",
+                    "--trace",
+                    str(trace),
+                ],
+                env={"MINI_WORKBUDDY_HOME": str(base / "mini" / script.parent.name)},
+                timeout=15,
+            )
+            if "RESULT: OK" not in out:
+                raise SystemExit(f"Chapter eval did not pass: {script.relative_to(ROOT)}")
+            if not trace.exists() or trace.read_text(encoding="utf-8").count("\n") < 5:
+                raise SystemExit(f"Chapter eval trace missing/empty: {script.relative_to(ROOT)}")
 
 
 def run_interactive_smokes() -> None:
@@ -481,6 +505,7 @@ def main() -> None:
     check_svg_integrity()
     run_offline_demos()
     run_chapter_demo_smokes()
+    run_chapter_eval_smokes()
     run_interactive_smokes()
     run_http_smoke()
     check_clean_room_scan()

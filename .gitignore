@@ -35,6 +35,7 @@ Thumbs.db
 .audit-log/
 .workbuddy/
 .workbuddy_user/
+.workbuddy_eval/
 .learn_workbuddy/
 .deliverables/
 .widgets/

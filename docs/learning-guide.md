@@ -56,6 +56,12 @@ python3 examples/full_tour/code.py --provider deepseek
 python3 scripts/run_real_smoke.py --provider deepseek --targets mini full s01 s24
 ```
 
+每个章节都支持统一模型评测入口，评测会写出 JSONL trace：
+
+```sh
+python3 s03_deferred_loading/code.py --eval --provider deepseek
+```
+
 全章节真实模型 smoke：
 
 ```sh
@@ -64,10 +70,10 @@ python3 scripts/run_real_smoke.py --provider deepseek --targets all-lessons
 
 OpenAI 路线分两种：
 
-- `--provider openai`：OpenAI Responses API，覆盖 mini harness / full tour。
-- `--provider openai-chat`：OpenAI-compatible Chat Completions 网关，覆盖 mini harness / full tour。
+- `--provider openai`：OpenAI Responses API，覆盖 mini harness / full tour / 24 章 eval。
+- `--provider openai-chat`：OpenAI-compatible Chat Completions 网关，覆盖 mini harness / full tour / 24 章 eval。
 
-章节脚本本身使用 Anthropic-compatible message shape；GPT 网关适配主要在 `mini_workbuddy.providers` 里教学。
+章节交互 CLI 多数保留 Anthropic-compatible message shape；统一 `--eval` 入口走 `mini_workbuddy.providers`，所以 GPT 网关也能批量评测章节。
 
 ## 卡住时看哪里
 
@@ -76,7 +82,7 @@ OpenAI 路线分两种：
 | 没有 API key | 先跑 `--demo` 或 `--provider offline`。 |
 | DeepSeek 跑不起来 | 检查 `.env` 里的 `DEEPSEEK_API_KEY` 和 `DEEPSEEK_MODEL`。 |
 | OpenAI provider 报错 | 确认 `pip install -r requirements.txt` 已安装 `openai`。 |
-| 章节跑到真实家目录 | 设置 `WORKBUDDY_HOME=/tmp/learn-workbuddy`。 |
+| 章节跑到真实家目录 | 教学章节用 `WORKBUDDY_HOME=/tmp/learn-workbuddy`；统一 eval 用 `MINI_WORKBUDDY_HOME=/tmp/mini-workbuddy`。 |
 | 安全边界困惑 | 先读 `docs/security-boundaries.md`。 |
 | clean-room 边界困惑 | 先读 `docs/legal/clean-room.md` 和 `NOTICE.md`。 |
 

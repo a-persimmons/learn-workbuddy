@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yml", ".yaml", ".json", ".example", ".svg"}
-SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", "benchmark-runs"}
+SKIP_PARTS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".tmp", ".workbuddy_eval", "benchmark-runs"}
 SKIP_PREFIXES = {("docs", "plans")}
 
 PUBLIC_OVERSPECIFIED_REGEXES = [

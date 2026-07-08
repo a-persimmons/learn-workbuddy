@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -22,6 +23,8 @@ SENSITIVE_ENV_KEYS = {
     "OPENAI_API_KEY",
     "OPENAI_CHAT_API_KEY",
 }
+
+SECRET_RE = re.compile(r"\bsk-[A-Za-z0-9_-]{6,}\b")
 
 
 @dataclass(frozen=True)
@@ -53,18 +56,27 @@ class CaseResult:
     duration_seconds: float
     exit_code: int
     stdout_path: str
+    trace_path: str
+    trace_events: int
     evidence: list[str]
     improvements: list[str]
     command: list[str]
 
 
-def discover_model_lessons() -> list[LessonTarget]:
+def discover_lessons() -> list[LessonTarget]:
     lessons: list[LessonTarget] = []
     for script in sorted(ROOT.glob("s[0-9][0-9]_*/code.py")):
-        text = script.read_text(encoding="utf-8")
-        if "from anthropic import Anthropic" in text and "client.messages.create" in text:
-            lessons.append(LessonTarget(chapter=script.parent.name, script=script))
+        lessons.append(LessonTarget(chapter=script.parent.name, script=script))
     return lessons
+
+
+def discover_model_lessons() -> list[LessonTarget]:
+    """Backward-compatible alias for older docs/tests.
+
+    Every lesson now has a model-backed `--eval` path, including chapters
+    whose main teaching body is a deterministic simulation.
+    """
+    return discover_lessons()
 
 
 def provider_ready(provider: str) -> bool:
@@ -83,6 +95,14 @@ def redact_env(env: dict[str, str]) -> dict[str, str]:
     return {k: ("<redacted>" if k in SENSITIVE_ENV_KEYS and v else v) for k, v in env.items()}
 
 
+def redact_command(command: list[str]) -> list[str]:
+    return [replace_secrets(item) for item in command]
+
+
+def replace_secrets(text: str) -> str:
+    return SECRET_RE.sub("<redacted-key>", text)
+
+
 def base_env() -> dict[str, str]:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT)
@@ -90,7 +110,7 @@ def base_env() -> dict[str, str]:
 
 
 def build_cases(providers: list[str], max_lessons: int | None = None) -> list[Case]:
-    lessons = discover_model_lessons()
+    lessons = discover_lessons()
     if max_lessons is not None:
         lessons = lessons[:max_lessons]
 
@@ -130,34 +150,117 @@ def build_cases(providers: list[str], max_lessons: int | None = None) -> list[Ca
             )
         )
 
-        if provider in {"deepseek", "anthropic"}:
-            for lesson in lessons:
-                stdin = "List the files in the current directory, then say DONE.\nq\n"
-                if lesson.chapter == "s22_automation_scheduler":
-                    stdin = "/list\nq\n"
-                cases.append(
-                    Case(
-                        case_id=f"{provider}::lesson::{lesson.chapter}",
-                        provider=provider,
-                        kind="lesson",
-                        command=[
-                            sys.executable,
-                            lesson.script.relative_to(ROOT).as_posix(),
-                            "--provider",
-                            provider,
-                        ],
-                        stdin=stdin,
-                        timeout=240,
-                        env={"WORKBUDDY_HOME": tempfile.mkdtemp(prefix=f"model-bench-{provider}-{lesson.chapter}-")},
-                    )
+        for lesson in lessons:
+            cases.append(
+                Case(
+                    case_id=f"{provider}::lesson::{lesson.chapter}",
+                    provider=provider,
+                    kind="lesson",
+                    command=[
+                        sys.executable,
+                        lesson.script.relative_to(ROOT).as_posix(),
+                        "--eval",
+                        "--provider",
+                        provider,
+                        "--max-turns",
+                        "5",
+                    ],
+                    timeout=240,
+                    env={"MINI_WORKBUDDY_HOME": tempfile.mkdtemp(prefix=f"model-bench-{provider}-{lesson.chapter}-")},
                 )
+            )
     return cases
 
 
-def score_output(case: Case, exit_code: int, stdout: str, duration: float, stdout_path: Path) -> CaseResult:
+def _count_jsonl_events(path: Path) -> int:
+    if not path.exists():
+        return 0
+    total = 0
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip():
+            continue
+        try:
+            json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        total += 1
+    return total
+
+
+def append_trace(path: Path, event: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(event, ensure_ascii=False) + "\n")
+
+
+def seed_trace(path: Path, case: Case, command: list[str]) -> None:
+    path.write_text("", encoding="utf-8")
+    append_trace(path, {
+        "type": "case_start",
+        "case_id": case.case_id,
+        "provider": case.provider,
+        "kind": case.kind,
+        "command": redact_command(command),
+    })
+
+
+def enrich_trace_from_stdout(case: Case, stdout: str, trace_path: Path) -> None:
+    for line in stdout.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("Transcript:"):
+            source = Path(stripped.split(":", 1)[1].strip())
+            copy_jsonl_trace(source, trace_path, source_type="transcript")
+        elif stripped.startswith("Manifest:"):
+            source = Path(stripped.split(":", 1)[1].strip())
+            copy_manifest_trace(source, trace_path)
+    append_trace(trace_path, {
+        "type": "case_end",
+        "case_id": case.case_id,
+        "stdout_lines": len(stdout.splitlines()),
+    })
+
+
+def copy_jsonl_trace(source: Path, target: Path, source_type: str) -> None:
+    if not source.exists():
+        append_trace(target, {"type": "artifact_missing", "source_type": source_type, "path": str(source)})
+        return
+    copied = 0
+    for line in source.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        append_trace(target, {"type": source_type, "event": event})
+        copied += 1
+    append_trace(target, {"type": "artifact_copied", "source_type": source_type, "path": str(source), "events": copied})
+
+
+def copy_manifest_trace(source: Path, target: Path) -> None:
+    if not source.exists():
+        append_trace(target, {"type": "artifact_missing", "source_type": "manifest", "path": str(source)})
+        return
+    try:
+        payload = json.loads(source.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        append_trace(target, {"type": "artifact_error", "source_type": "manifest", "path": str(source), "error": str(exc)})
+        return
+    append_trace(target, {"type": "manifest", "path": str(source), "payload": payload})
+
+
+def score_output(
+    case: Case,
+    exit_code: int,
+    stdout: str,
+    duration: float,
+    stdout_path: Path,
+    trace_path: Path,
+) -> CaseResult:
     evidence: list[str] = []
     improvements: list[str] = []
     output_tail = stdout[-4000:]
+    trace_events = _count_jsonl_events(trace_path)
 
     if exit_code == 0:
         result = "pass"
@@ -174,6 +277,14 @@ def score_output(case: Case, exit_code: int, stdout: str, duration: float, stdou
         improvements.append("[workflow] inspect stdout artifact and add a regression test for the failing path")
 
     if case.kind == "mini":
+        if trace_events <= 1:
+            result = "fail"
+            compliance = min(compliance, 2)
+            execution_quality = min(execution_quality, 2)
+            overall = min(overall, 2)
+            improvements.append("[eval] mini case did not produce a non-empty trajectory trace")
+        else:
+            evidence.append(f"mini trace events: {trace_events}")
         required = ["Audit verified: True", "Transcript events:"]
         missing = [item for item in required if item not in stdout]
         if missing:
@@ -186,6 +297,14 @@ def score_output(case: Case, exit_code: int, stdout: str, duration: float, stdou
             evidence.append("mini markers present: Audit verified + Transcript events")
 
     if case.kind == "full":
+        if trace_events <= 1:
+            result = "fail"
+            compliance = min(compliance, 2)
+            execution_quality = min(execution_quality, 2)
+            overall = min(overall, 2)
+            improvements.append("[eval] full case did not produce a non-empty trajectory trace")
+        else:
+            evidence.append(f"full trace events: {trace_events}")
         if "RESULT: OK" not in stdout or "chain verifies-> True" not in stdout:
             result = "fail"
             compliance = min(compliance, 2)
@@ -196,17 +315,34 @@ def score_output(case: Case, exit_code: int, stdout: str, duration: float, stdou
             evidence.append("full tour markers present: RESULT OK + audit chain verifies")
 
     if case.kind == "lesson":
-        lesson_ok = "DONE" in stdout.upper()
-        if case.case_id.endswith("s22_automation_scheduler"):
-            lesson_ok = "暂无自动化任务" in stdout or "ID" in stdout
+        if trace_events <= 0:
+            result = "fail"
+            compliance = min(compliance, 1)
+            execution_quality = min(execution_quality, 1)
+            overall = min(overall, 1)
+            improvements.append("[eval] lesson trace is empty or missing")
+        else:
+            evidence.append(f"lesson trace events: {trace_events}")
+
+        has_tool_call = False
+        has_case_end = False
+        if trace_path.exists():
+            for line in trace_path.read_text(encoding="utf-8", errors="replace").splitlines():
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                has_tool_call = has_tool_call or event.get("type") == "tool_call"
+                has_case_end = has_case_end or event.get("type") == "case_end"
+        lesson_ok = "RESULT: OK" in stdout and has_tool_call and has_case_end
         if not lesson_ok:
             result = "fail"
             compliance = min(compliance, 3)
             execution_quality = min(execution_quality, 3)
             overall = min(overall, 3)
-            improvements.append("[capability] lesson did not reach the scripted DONE marker")
+            improvements.append("[capability] lesson eval did not record a complete model/tool trajectory")
         else:
-            evidence.append("lesson reached DONE marker")
+            evidence.append("lesson eval recorded tool_call and case_end")
 
     if "Traceback" in output_tail:
         result = "fail"
@@ -226,20 +362,35 @@ def score_output(case: Case, exit_code: int, stdout: str, duration: float, stdou
         duration_seconds=round(duration, 3),
         exit_code=exit_code,
         stdout_path=str(stdout_path),
+        trace_path=str(trace_path),
+        trace_events=trace_events,
         evidence=evidence,
         improvements=improvements,
-        command=case.command,
+        command=redact_command(case.command),
     )
 
 
 def run_case(case: Case, run_dir: Path, dry_run: bool) -> CaseResult:
     stdout_dir = run_dir / "stdout"
+    trace_dir = run_dir / "traces"
     stdout_dir.mkdir(parents=True, exist_ok=True)
+    trace_dir.mkdir(parents=True, exist_ok=True)
     stdout_path = stdout_dir / (case.case_id.replace("::", "__").replace("/", "_") + ".txt")
+    trace_path = trace_dir / (case.case_id.replace("::", "__").replace("/", "_") + ".jsonl")
+    command = list(case.command)
+    if case.kind == "lesson" and "--trace" not in command:
+        command.extend(["--trace", str(trace_path)])
+    seed_trace(trace_path, case, command)
 
     if dry_run:
-        stdout = f"DRY RUN: {' '.join(case.command)}\n"
+        stdout = f"DRY RUN: {' '.join(command)}\n"
         stdout_path.write_text(stdout, encoding="utf-8")
+        append_trace(trace_path, {
+            "type": "dry_run",
+            "case_id": case.case_id,
+            "provider": case.provider,
+            "command": redact_command(command),
+        })
         return CaseResult(
             case_id=case.case_id,
             provider=case.provider,
@@ -251,9 +402,11 @@ def run_case(case: Case, run_dir: Path, dry_run: bool) -> CaseResult:
             duration_seconds=0.0,
             exit_code=0,
             stdout_path=str(stdout_path),
+            trace_path=str(trace_path),
+            trace_events=_count_jsonl_events(trace_path),
             evidence=["dry-run matrix generation only"],
             improvements=[],
-            command=case.command,
+            command=redact_command(command),
         )
 
     env = base_env()
@@ -262,7 +415,7 @@ def run_case(case: Case, run_dir: Path, dry_run: bool) -> CaseResult:
     start = time.monotonic()
     try:
         proc = subprocess.run(
-            case.command,
+            command,
             cwd=ROOT,
             env=env,
             input=case.stdin,
@@ -281,7 +434,9 @@ def run_case(case: Case, run_dir: Path, dry_run: bool) -> CaseResult:
         exit_code = 124
 
     stdout_path.write_text(stdout, encoding="utf-8", errors="replace")
-    return score_output(case, exit_code, stdout, duration, stdout_path)
+    if case.kind != "lesson":
+        enrich_trace_from_stdout(case, stdout, trace_path)
+    return score_output(case, exit_code, stdout, duration, stdout_path, trace_path)
 
 
 def write_reports(run_dir: Path, cases: list[Case], results: list[CaseResult], dry_run: bool) -> None:

@@ -19,6 +19,9 @@ Usage:
     # Pick which targets to run (default: mini)
     python scripts/run_real_smoke.py --targets mini full s01 s24
 
+    # Evaluate every chapter entrypoint and write model/tool traces
+    python scripts/run_real_smoke.py --provider deepseek --targets all-lessons
+
 This intentionally lives outside the pytest suite: it is a manual,
 key-required verification, not an automated test. It exits non-zero on the
 first failure so it is still CI-composable if a maintainer wires it into a
@@ -38,12 +41,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _model_lesson_targets() -> list[Path]:
-    targets: list[Path] = []
-    for script in sorted(ROOT.glob("s[0-9][0-9]_*/code.py")):
-        text = script.read_text(encoding="utf-8")
-        if "from anthropic import Anthropic" in text and "client.messages.create" in text:
-            targets.append(script)
-    return targets
+    return sorted(ROOT.glob("s[0-9][0-9]_*/code.py"))
 
 
 def _load_env() -> None:
@@ -70,13 +68,16 @@ def _provider_ready(provider: str) -> tuple[bool, str]:
     return False, provider
 
 
-def _run(cmd: list[str], stdin: str | None = None, timeout: int = 120) -> int:
+def _run(cmd: list[str], stdin: str | None = None, timeout: int = 120, env: dict[str, str] | None = None) -> int:
     print("\n" + "=" * 72)
     print("$", " ".join(cmd))
     print("=" * 72)
+    merged_env = os.environ.copy()
+    if env:
+        merged_env.update(env)
     result = subprocess.run(
         cmd, cwd=ROOT, text=True, input=stdin,
-        stdout=None, stderr=subprocess.STDOUT, timeout=timeout,
+        stdout=None, stderr=subprocess.STDOUT, timeout=timeout, env=merged_env,
     )
     return result.returncode
 
@@ -98,33 +99,21 @@ def smoke_full_tour(provider: str) -> int:
 
 
 def smoke_lesson(script: str, provider: str) -> int:
-    """Drive an interactive lesson with one prompt then quit.
-
-    Lessons read the Anthropic-compatible env directly. DeepSeek works
-    because every lesson now accepts --provider deepseek and maps it to
-    DeepSeek's Anthropic-compatible endpoint. OpenAI Responses is available
-    through the mini provider adapter, not these early chapter scripts.
-    """
-    if provider in {"openai", "openai-chat"}:
-        print(f"[skip] {script}: lesson entrypoints use the Anthropic env; "
-              f"use --provider anthropic/deepseek to smoke them.")
-        return 0
-    prompt = "List the files in the current directory, then say DONE.\nq\n"
-    return _run([sys.executable, script, "--provider", provider], stdin=prompt)
+    """Run one chapter's shared model-backed eval path."""
+    trace_dir = Path(tempfile.mkdtemp(prefix=f"learn-workbuddy-{provider}-trace-"))
+    trace_path = trace_dir / (Path(script).parent.name + ".jsonl")
+    return _run(
+        [sys.executable, script, "--eval", "--provider", provider, "--trace", str(trace_path)],
+        timeout=240,
+        env={"MINI_WORKBUDDY_HOME": tempfile.mkdtemp(prefix=f"learn-workbuddy-{provider}-lesson-")},
+    )
 
 
 def smoke_all_lessons(provider: str) -> int:
-    if provider in {"openai", "openai-chat"}:
-        print("[skip] all-lessons: lesson entrypoints use the Anthropic-compatible env; "
-              "use --provider anthropic/deepseek to smoke them.")
-        return 0
     failures: list[str] = []
     for script in _model_lesson_targets():
         rel = script.relative_to(ROOT).as_posix()
-        stdin = "List the files in the current directory, then say DONE.\nq\n"
-        if script.parent.name == "s22_automation_scheduler":
-            stdin = "/list\nq\n"
-        code = _run([sys.executable, rel, "--provider", provider], stdin=stdin, timeout=240)
+        code = smoke_lesson(rel, provider)
         if code != 0:
             failures.append(f"{rel} exited {code}")
     if failures:

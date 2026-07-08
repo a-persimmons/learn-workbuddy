@@ -14,8 +14,12 @@ chapters already understand.
 
 from __future__ import annotations
 
+import argparse
+import json
 import os
 import sys
+import time
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -107,13 +111,246 @@ def prepare_chapter_provider() -> str:
 
 
 def maybe_run_chapter_demo(file: str, progression: dict[str, Any]) -> None:
-    """Run the offline chapter demo and exit when --demo is present."""
+    """Run shared chapter entrypoints before chapter-specific code loads.
 
+    - `--demo` is offline and keyless.
+    - `--eval` is a real-provider benchmark path used by every chapter.
+      It is deliberately intercepted before the chapter imports Anthropic
+      directly, so even mock-only chapters can be evaluated online.
+    """
+
+    if "--eval" in sys.argv:
+        run_chapter_eval(file, progression)
+        raise SystemExit(0)
     if "--demo" not in sys.argv:
         return
     sys.argv[:] = [arg for arg in sys.argv if arg != "--demo"]
     run_chapter_demo(file, progression)
     raise SystemExit(0)
+
+
+def _eval_parser() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run a model-backed chapter evaluation.")
+    parser.add_argument("--eval", action="store_true")
+    parser.add_argument(
+        "--provider",
+        choices=["anthropic", "deepseek", "openai", "openai-chat", "offline"],
+        default=None,
+    )
+    parser.add_argument("--prompt", default=None)
+    parser.add_argument("--max-turns", type=int, default=5)
+    parser.add_argument("--trace", default=None, help="JSONL trace output path")
+    args, _unknown = parser.parse_known_args(sys.argv[1:])
+    return args
+
+
+def _tool_argument(tool_name: str, tool_input: dict[str, Any]) -> str:
+    if tool_name == "bash":
+        return str(tool_input.get("command", ""))
+    if tool_name == "read_file":
+        return str(tool_input.get("path", ""))
+    if tool_name == "tool_search":
+        return str(tool_input.get("query", ""))
+    raise KeyError(f"unknown tool: {tool_name}")
+
+
+def _append_trace(path: Path, event: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    envelope = {"timestamp": int(time.time() * 1000), **event}
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(envelope, ensure_ascii=False) + "\n")
+
+
+def _default_eval_prompt(progression: dict[str, Any]) -> str:
+    chapter = progression.get("chapter", "chapter")
+    adds = ", ".join(progression.get("adds") or [])
+    return (
+        f"You are evaluating {chapter} in learn-workbuddy. "
+        "Use the available tools through the harness. First call tool_search, "
+        "then run pwd, then read this chapter's README.md if possible. "
+        f"Explain in two bullets how this chapter teaches: {adds}. "
+        "End your final answer with DONE."
+    )
+
+
+def run_chapter_eval(file: str, progression: dict[str, Any]) -> None:
+    """Run one chapter through the shared provider adapter and emit a trace.
+
+    This is the online-evaluable counterpart to each chapter's interactive
+    CLI. The benchmark calls this path for every `sXX/code.py` so the eval
+    artifact contains the actual model/tool trajectory, not just stdout.
+    """
+
+    args = _eval_parser()
+    _load_env()
+    from dotenv import load_dotenv
+
+    load_dotenv(override=True)
+
+    root = Path(file).resolve().parents[1]
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
+    os.environ.setdefault(
+        "MINI_WORKBUDDY_HOME",
+        str(root / ".workbuddy_eval" / str(progression.get("chapter", Path(file).resolve().parent.name))),
+    )
+
+    from mini_workbuddy.audit import AuditLog
+    from mini_workbuddy.config import HarnessConfig
+    from mini_workbuddy.events import EventBus
+    from mini_workbuddy.providers import (
+        ProviderRequest,
+        append_provider_message,
+        normalized_tools,
+        select_provider,
+    )
+    from mini_workbuddy.storage import Storage
+    from mini_workbuddy.tools import ToolRegistry
+
+    provider = select_provider(args.provider)
+    config = HarnessConfig.from_env()
+    storage = Storage(config)
+    events = EventBus()
+    audit = AuditLog(config)
+    tools = ToolRegistry(config, storage)
+
+    chapter_path = Path(file).resolve()
+    chapter_dir = chapter_path.parent
+    session = storage.create_session(
+        cwd=str(chapter_dir),
+        title=f"benchmark eval {progression.get('chapter', chapter_dir.name)}",
+    )
+    prompt = args.prompt or _default_eval_prompt(progression)
+    trace_path = Path(args.trace).expanduser() if args.trace else (
+        config.root_dir / "eval-traces" / f"{progression.get('chapter', chapter_dir.name)}.jsonl"
+    )
+    trace_path.parent.mkdir(parents=True, exist_ok=True)
+    trace_path.write_text("", encoding="utf-8")
+
+    system = (
+        f"You are running a model-backed benchmark for {progression.get('chapter', chapter_dir.name)}. "
+        f"Workspace: {session.cwd}. "
+        "Use tools to gather evidence. Prefer safe read-only commands. "
+        "You must call at least one tool before finalizing."
+    )
+    messages: list[Any] = [provider.initial_user_message(prompt)]
+
+    storage.append_event(session, {"type": "message", "role": "user", "content": prompt})
+    audit.append("eval_user_prompt", {"sessionId": session.id, "chapter": progression.get("chapter"), "provider": provider.name})
+    _append_trace(trace_path, {
+        "type": "case_start",
+        "chapter": progression.get("chapter"),
+        "provider": provider.name,
+        "model": provider.model,
+        "prompt": prompt,
+        "session": session.id,
+    })
+
+    print(f"Eval chapter: {progression.get('chapter', chapter_dir.name)}")
+    print(f"Provider: {provider.name}")
+    print(f"Model: {provider.model}")
+    print(f"Session: {session.id}")
+    print(f"Trace: {trace_path}")
+
+    final_text = ""
+    tool_count = 0
+    for turn in range(1, args.max_turns + 1):
+        _append_trace(trace_path, {"type": "model_request", "turn": turn, "messages": len(messages)})
+        model_turn = provider.create(
+            ProviderRequest(
+                system=system,
+                messages=messages,
+                tools=normalized_tools(),
+                max_tokens=2000,
+                required_tool="tool_search" if turn == 1 else None,
+            )
+        )
+        append_provider_message(messages, model_turn.raw_assistant)
+        _append_trace(trace_path, {
+            "type": "model_response",
+            "turn": turn,
+            "text": model_turn.text,
+            "tool_calls": [asdict(call) for call in model_turn.tool_calls],
+        })
+
+        if model_turn.text:
+            final_text = model_turn.text
+            print(model_turn.text)
+
+        if not model_turn.wants_tools:
+            storage.append_event(session, {"type": "message", "role": "assistant", "content": final_text})
+            audit.append("eval_assistant_message", {"sessionId": session.id, "content": final_text[:500]})
+            break
+
+        results = []
+        for call in model_turn.tool_calls:
+            argument = _tool_argument(call.name, call.arguments)
+            tool_count += 1
+            _append_trace(trace_path, {
+                "type": "tool_call",
+                "turn": turn,
+                "id": call.id,
+                "name": call.name,
+                "arguments": call.arguments,
+            })
+            audit.append("eval_tool_call", {"sessionId": session.id, "tool": call.name, "argument": argument})
+            try:
+                result = tools.run(call.name, argument, session)
+                storage.append_event(session, {"type": "tool_result", **asdict(result)})
+                events.publish("session_update", {"sessionId": session.id, "type": "tool_result", **asdict(result)})
+                output = result.content
+                audit.append("eval_tool_result", {
+                    "sessionId": session.id,
+                    "tool": result.name,
+                    "externalized": result.externalized_path is not None,
+                    "exit_code": result.exit_code,
+                })
+                _append_trace(trace_path, {
+                    "type": "tool_result",
+                    "turn": turn,
+                    "id": call.id,
+                    "name": result.name,
+                    "exit_code": result.exit_code,
+                    "externalized_path": result.externalized_path,
+                    "content_preview": result.content[:1000],
+                })
+            except Exception as exc:
+                output = f"Tool failed: {exc}"
+                audit.append("eval_tool_error", {"sessionId": session.id, "tool": call.name, "error": str(exc)})
+                _append_trace(trace_path, {
+                    "type": "tool_error",
+                    "turn": turn,
+                    "id": call.id,
+                    "name": call.name,
+                    "error": str(exc),
+                })
+            print(f"[tool_call] {call.name}: {argument}")
+            print(output[:500])
+            results.append((call, output))
+
+        append_provider_message(messages, provider.format_tool_results(results))
+    else:
+        _append_trace(trace_path, {"type": "max_turns", "max_turns": args.max_turns})
+
+    transcript = storage.read_transcript(session)
+    audit_ok = audit.verify()
+    _append_trace(trace_path, {
+        "type": "case_end",
+        "chapter": progression.get("chapter"),
+        "provider": provider.name,
+        "tool_calls": tool_count,
+        "transcript_events": len(transcript),
+        "audit_verified": audit_ok,
+        "done": "DONE" in final_text.upper(),
+    })
+
+    print("Transcript:", storage.transcript_path(session))
+    print("Transcript events:", len(transcript))
+    print("Audit file:", audit.path)
+    print("Audit verified:", audit_ok)
+    print("Tool calls:", tool_count)
+    print("RESULT:", "OK" if tool_count > 0 and audit_ok else "FAIL")
 
 
 def run_chapter_demo(file: str, progression: dict[str, Any]) -> None:

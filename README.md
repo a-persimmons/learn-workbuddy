@@ -227,7 +227,10 @@ python3 scripts/verify.py
 - mini HTTP server smoke
 - 24 章目录、每个 README 的代码架构图、27 张配图引用、clean-room 脱敏扫描
 
-像 learn-claude-code 一样填 key 在线跑，推荐先用 DeepSeek：
+像 learn-claude-code 一样填 key 在线跑，推荐先用 DeepSeek。每个章节都有两种入口：
+
+- `python3 sXX_xxx/code.py --provider deepseek`：进入章节自己的交互式教学 CLI。
+- `python3 sXX_xxx/code.py --eval --provider deepseek`：跑统一的模型评测入口，写出 model/tool JSONL trace。
 
 ```sh
 cp .env.example .env
@@ -235,6 +238,7 @@ cp .env.example .env
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider deepseek
 python3 scripts/run_real_smoke.py --provider deepseek --targets mini
 python3 s01_agent_loop/code.py --provider deepseek
+python3 s01_agent_loop/code.py --eval --provider deepseek
 python3 s24_comprehensive/code.py --provider deepseek
 python3 scripts/run_real_smoke.py --provider deepseek --targets all-lessons
 ```
@@ -248,9 +252,10 @@ python3 scripts/run_real_smoke.py --provider deepseek --targets all-lessons
 # Anthropic-compatible lessons
 python3 s01_agent_loop/code.py --provider anthropic
 
-# OpenAI Responses API provider adapter（mini harness / full tour 路径）
+# OpenAI Responses API provider adapter（mini harness / full tour / 章节 eval 路径）
 python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai
 python3 examples/full_tour/code.py --provider openai
+python3 s01_agent_loop/code.py --eval --provider openai
 
 # OpenAI-compatible 网关，例如 Sub2API /v1/chat/completions
 OPENAI_CHAT_BASE_URL=https://your-openai-compatible-gateway.example/v1 \
@@ -259,10 +264,10 @@ python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 
 OPENAI_CHAT_BASE_URL=https://your-openai-compatible-gateway.example/v1 \
 OPENAI_CHAT_MODEL=gpt-5.5 \
-python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full
+python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full all-lessons
 ```
 
-边界说明：`s01`-`s24` 的章节脚本主要使用 Anthropic-compatible `tool_use/tool_result` 形状，所以逐章真实模型 smoke 覆盖 DeepSeek/Anthropic。OpenAI Responses 和 OpenAI-compatible gateway 的协议差异在 `mini_workbuddy.providers`、`examples/mini_workbuddy_demo` 和 `examples/full_tour` 中教学。
+边界说明：章节自己的交互式 CLI 多数保留 Anthropic-compatible `tool_use/tool_result` 形状，便于对标 learn-claude-code；统一 `--eval` 路径则通过 `mini_workbuddy.providers` 归一化 DeepSeek/Anthropic/OpenAI/OpenAI-compatible gateway，所以 24 章都能进入模型评测并写出 trace。
 
 ## Mini WorkBuddy
 
@@ -311,11 +316,11 @@ python3 examples/mini_workbuddy_demo/code.py --mode real --provider openai-chat
 
 # 一键真实 API 冒烟（可选，需 key）
 python3 scripts/run_real_smoke.py --provider deepseek --targets mini full s01 s24
-python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full
+python3 scripts/run_real_smoke.py --provider openai-chat --targets mini full all-lessons
 ```
 
-真实模型 benchmark 会批量跑 DeepSeek 和 OpenAI-compatible gateway，并把成绩单、stdout 证据、失败改进建议写到
-`benchmark-runs/<name>/`。这是给开源读者和维护者看的“考试”，不是 CI 默认项：
+真实模型 benchmark 会批量跑 DeepSeek 和 OpenAI-compatible gateway，并把成绩单、stdout 证据、JSONL 轨迹、失败改进建议写到
+`benchmark-runs/<name>/`。默认矩阵是每个 provider 跑 `mini + full + s01-s24 eval`，也就是两个 provider 共 52 个 case。这是给开源读者和维护者看的“考试”，不是 CI 默认项：
 
 ```sh
 DEEPSEEK_MODEL=deepseek-v4-pro \
@@ -323,8 +328,8 @@ OPENAI_CHAT_BASE_URL=https://your-openai-compatible-gateway.example/v1 \
 OPENAI_CHAT_MODEL=gpt-5.5 \
 python3 scripts/model_benchmark.py --providers deepseek openai-chat
 
-# 快速检查矩阵，不调用模型
-python3 scripts/model_benchmark.py --providers deepseek openai-chat --max-lessons 2 --dry-run
+# 快速检查矩阵与 trace 文件，不调用模型
+python3 scripts/model_benchmark.py --providers deepseek openai-chat --max-lessons 3 --dry-run
 ```
 
 配置见 `.env.example`（`PROVIDER=deepseek|anthropic|openai|openai-chat|offline|auto`）。协议对照与设计
