@@ -1,14 +1,16 @@
-# Learn WorkBuddy
+# Learn WorkBuddy: Desktop Agent Harness 教程
 
 **从 0 复刻一个 WorkBuddy-style 桌面 AI 助手 Harness：24 章、27 张图、一条命令跑完整链路。**
 
-这个仓库不是产品源码镜像，也不是闭源实现搬运。它是一个 clean-room 教学项目：用原创 Python 代码、可运行 demo 和 27 张架构图，把一个桌面 AI 助手背后的 harness 机制从最小 `while True` 一步步搭出来。
+这个仓库不是产品源码镜像，也不是闭源实现搬运。它是一个 clean-room 教学项目：用原创 Python 代码、可运行 demo 和 27 张架构图，把一个 **WorkBuddy-style desktop AI agent harness** 背后的 agent loop、tool calling、memory system、sidecar runtime、permission hooks、audit log、DeepSeek/OpenAI/Anthropic provider adapter 和 benchmark trace，从最小 `while True` 一步步搭出来。
+
+English: a runnable Python tutorial for building a desktop AI agent harness, covering agent loops, tool use, context engineering, long-term memory, local sidecars, sandboxed execution, OpenAI/DeepSeek/Anthropic providers, and reproducible eval traces.
 
 > Agency 来自模型，Harness 让 agency 落地。
 >
 > 本教程基于 WorkBuddy 的架构设计与公开文档编写。代码为 Python 教学实现，非源码提取。
 
-README 保留四个最有解释力的抓手：**六层架构、Agent 角色分工、SubAgent 两种通信模式、三大根本矛盾**。它们是 clean-room 教学抽象，不绑定某个版本的私有实现。
+你可以先用四个框架建立全局地图：**六层架构、Agent 角色分工、SubAgent 两种通信模式、三大根本矛盾**。这些框架是为了讲清 desktop agent harness 的设计取舍而抽象出来的学习模型，不代表、也不依赖任何特定版本的私有实现。
 
 <p align="center">
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
@@ -197,7 +199,7 @@ flowchart LR
 ## 快速开始
 
 ```sh
-git clone https://github.com/shareAI-lab/learn-workbuddy
+git clone https://github.com/adongwanai/learn-workbuddy
 cd learn-workbuddy
 
 python3 -m venv .venv
