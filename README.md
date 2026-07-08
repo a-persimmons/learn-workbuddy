@@ -72,13 +72,13 @@ flowchart TB
 一句话版本：
 
 ```text
-Desktop Agent = UI shell
-              + sidecar/session runtime
-              + agent loop
-              + tool registry
-              + context and memory manager
-              + persistence
-              + permissions and audit
+桌面 Agent = 用户界面外壳
+             + Sidecar / 会话运行时
+             + Agent 循环
+             + 工具注册表
+             + 上下文与记忆管理
+             + 持久化存储
+             + 权限与审计
 ```
 
 模型只是“大脑”。Harness 是让大脑能够长期工作、使用工具、保持上下文、交付文件、接受治理的操作系统。
