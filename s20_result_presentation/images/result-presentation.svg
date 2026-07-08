@@ -28,7 +28,7 @@
   <!-- Output: artifact card + preview -->
   <rect x="460" y="55" width="290" height="65" rx="8" fill="#34a853"/>
   <text x="605" y="78" text-anchor="middle" font-size="14" fill="white" font-weight="bold">交付给用户</text>
-  <text x="605" y="97" text-anchor="middle" font-size="11" fill="white">📄 Artifact 卡片 + 🖥 HTML 预览面板</text>
+  <text x="605" y="97" text-anchor="middle" font-size="11" fill="white">Artifact 卡片 + HTML 预览面板</text>
   <text x="605" y="113" text-anchor="middle" font-size="10" fill="#fbbc04">自动打开第一个文件</text>
 
   <!-- Priority ordering -->
@@ -63,7 +63,7 @@
   <text x="70" y="460" font-size="11" fill="#202124" font-family="monospace">})</text>
 
   <rect x="410" y="355" width="340" height="120" rx="8" fill="#ea4335" opacity="0.1" stroke="#ea4335" stroke-width="2"/>
-  <text x="580" y="378" text-anchor="middle" font-size="13" fill="#ea4335" font-weight="bold">✗ 错误: 多次调用</text>
+  <text x="580" y="378" text-anchor="middle" font-size="13" fill="#ea4335" font-weight="bold">错误: 多次调用</text>
   <text x="430" y="400" font-size="11" fill="#202124" font-family="monospace">present_files({files:[a]})</text>
   <text x="430" y="415" font-size="11" fill="#202124" font-family="monospace">present_files({files:[b]})</text>
   <text x="430" y="430" font-size="11" fill="#202124" font-family="monospace">present_files({files:[c]})</text>

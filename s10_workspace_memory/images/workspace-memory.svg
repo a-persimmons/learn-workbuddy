@@ -17,24 +17,24 @@
   <rect x="50" y="72" width="350" height="18" fill="#1a73e8"/>
   <text x="225" y="77" text-anchor="middle" font-size="14" fill="white" font-weight="bold">.workbuddy/memory/</text>
 
-  <text x="75" y="115" font-size="13" fill="#202124" font-family="monospace">📁 memory/</text>
+  <text x="75" y="115" font-size="13" fill="#202124" font-family="monospace">memory/</text>
 
   <line x1="85" y1="125" x2="85" y2="330" stroke="#1a73e8" stroke-width="1.5"/>
 
   <!-- Daily logs -->
   <rect x="100" y="130" width="170" height="35" rx="4" fill="#34a853" opacity="0.15" stroke="#34a853" stroke-width="1"/>
-  <text x="115" y="152" font-size="12" fill="#202124" font-family="monospace">📄 2026-07-08.md</text>
+  <text x="115" y="152" font-size="12" fill="#202124" font-family="monospace">2026-07-08.md</text>
 
   <rect x="100" y="170" width="170" height="35" rx="4" fill="#f8f9fa" stroke="#34a853" stroke-width="1"/>
-  <text x="115" y="192" font-size="12" fill="#202124" font-family="monospace">📄 2026-07-07.md</text>
+  <text x="115" y="192" font-size="12" fill="#202124" font-family="monospace">2026-07-07.md</text>
 
   <rect x="100" y="210" width="170" height="35" rx="4" fill="#f8f9fa" stroke="#34a853" stroke-width="1"/>
-  <text x="115" y="232" font-size="12" fill="#202124" font-family="monospace">📄 2026-07-06.md</text>
+  <text x="115" y="232" font-size="12" fill="#202124" font-family="monospace">2026-07-06.md</text>
 
   <text x="115" y="260" font-size="11" fill="#202124" font-style="italic">... 30 天内的日志 ...</text>
 
   <rect x="100" y="275" width="170" height="35" rx="4" fill="#f8f9fa" stroke="#34a853" stroke-width="1" stroke-dasharray="4,3"/>
-  <text x="115" y="297" font-size="12" fill="#999" font-family="monospace">📄 2026-06-08.md</text>
+  <text x="115" y="297" font-size="12" fill="#999" font-family="monospace">2026-06-08.md</text>
 
   <text x="115" y="325" font-size="11" fill="#ea4335">超过30天 → 蒸馏后不再直接加载</text>
 
@@ -44,7 +44,7 @@
   <rect x="480" y="72" width="280" height="18" fill="#fbbc04"/>
   <text x="620" y="77" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">MEMORY.md</text>
 
-  <text x="500" y="115" font-size="12" fill="#202124">🎯 策展的长期记忆</text>
+  <text x="500" y="115" font-size="12" fill="#202124">策展的长期记忆</text>
   <text x="500" y="135" font-size="11" fill="#202124">· 项目核心架构决策</text>
   <text x="500" y="155" font-size="11" fill="#202124">· 关键技术选型及原因</text>
   <text x="500" y="175" font-size="11" fill="#202124">· 重要约定与命名规范</text>

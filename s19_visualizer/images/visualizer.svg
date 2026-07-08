@@ -50,31 +50,31 @@
 
   <!-- 5 widget type cards -->
   <rect x="40" y="190" width="135" height="100" rx="8" fill="#1a73e8" opacity="0.1" stroke="#1a73e8" stroke-width="2"/>
-  <text x="107" y="220" text-anchor="middle" font-size="22">📊</text>
+  <text x="107" y="220" text-anchor="middle" font-size="16" fill="#1a73e8" font-weight="700">data</text>
   <text x="107" y="245" text-anchor="middle" font-size="14" fill="#1a73e8" font-weight="bold">chart</text>
   <text x="107" y="265" text-anchor="middle" font-size="10" fill="#202124">数据图表</text>
   <text x="107" y="280" text-anchor="middle" font-size="9" fill="#999">饼/柱/折线</text>
 
   <rect x="190" y="190" width="135" height="100" rx="8" fill="#34a853" opacity="0.1" stroke="#34a853" stroke-width="2"/>
-  <text x="257" y="220" text-anchor="middle" font-size="22">🔧</text>
+  <text x="257" y="220" text-anchor="middle" font-size="16" fill="#34a853" font-weight="700">flow</text>
   <text x="257" y="245" text-anchor="middle" font-size="14" fill="#34a853" font-weight="bold">diagram</text>
   <text x="257" y="265" text-anchor="middle" font-size="10" fill="#202124">架构图</text>
   <text x="257" y="280" text-anchor="middle" font-size="9" fill="#999">流程/关系图</text>
 
   <rect x="340" y="190" width="135" height="100" rx="8" fill="#fbbc04" opacity="0.15" stroke="#fbbc04" stroke-width="2"/>
-  <text x="407" y="220" text-anchor="middle" font-size="22">🎨</text>
+  <text x="407" y="220" text-anchor="middle" font-size="16" fill="#fbbc04" font-weight="700">svg</text>
   <text x="407" y="245" text-anchor="middle" font-size="14" fill="#fbbc04" font-weight="bold">art</text>
   <text x="407" y="265" text-anchor="middle" font-size="10" fill="#202124">艺术创作</text>
   <text x="407" y="280" text-anchor="middle" font-size="9" fill="#999">SVG 插画</text>
 
   <rect x="490" y="190" width="135" height="100" rx="8" fill="#7b1fa2" opacity="0.1" stroke="#7b1fa2" stroke-width="2"/>
-  <text x="557" y="220" text-anchor="middle" font-size="22">🖥</text>
+  <text x="557" y="220" text-anchor="middle" font-size="16" fill="#7b1fa2" font-weight="700">ui</text>
   <text x="557" y="245" text-anchor="middle" font-size="14" fill="#7b1fa2" font-weight="bold">mockup</text>
   <text x="557" y="265" text-anchor="middle" font-size="10" fill="#202124">UI 原型</text>
   <text x="557" y="280" text-anchor="middle" font-size="9" fill="#999">界面草图</text>
 
   <rect x="640" y="190" width="120" height="100" rx="8" fill="#ea4335" opacity="0.1" stroke="#ea4335" stroke-width="2"/>
-  <text x="700" y="220" text-anchor="middle" font-size="22">⚡</text>
+  <text x="700" y="220" text-anchor="middle" font-size="16" fill="#ea4335" font-weight="700">live</text>
   <text x="700" y="245" text-anchor="middle" font-size="13" fill="#ea4335" font-weight="bold">interactive</text>
   <text x="700" y="265" text-anchor="middle" font-size="10" fill="#202124">交互组件</text>
   <text x="700" y="280" text-anchor="middle" font-size="9" fill="#999">HTML 交互</text>

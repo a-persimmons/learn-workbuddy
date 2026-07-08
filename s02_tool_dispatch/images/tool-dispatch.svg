@@ -48,7 +48,7 @@
   <text x="660" y="306" text-anchor="middle" font-size="11" fill="white">搜索内容</text>
 
   <!-- Concurrent execution -->
-  <text x="400" y="355" text-anchor="middle" font-size="13" fill="#202124" font-style="italic">⚡ 并发执行 (concurrent execution)</text>
+  <text x="400" y="355" text-anchor="middle" font-size="13" fill="#202124" font-style="italic">并发执行 (concurrent execution)</text>
 
   <!-- Arrows down -->
   <line x1="140" y1="320" x2="140" y2="370" stroke="#202124" stroke-width="1" stroke-dasharray="4,3"/>

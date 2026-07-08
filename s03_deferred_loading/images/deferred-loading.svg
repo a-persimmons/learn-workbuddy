@@ -28,7 +28,7 @@
 
   <!-- ===== LEFT: Without deferred loading (上下文爆炸) ===== -->
   <rect x="30" y="92" width="345" height="388" rx="12" fill="#fce8e6" stroke="#ea4335" stroke-width="1.5" opacity="0.5"/>
-  <text x="202" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#ea4335">❌ 直接加载所有工具</text>
+  <text x="202" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#ea4335">直接加载所有工具</text>
 
   <!-- Big context box overflowing -->
   <rect x="55" y="140" width="295" height="130" rx="8" fill="#ffffff" stroke="#ea4335" stroke-width="2" stroke-dasharray="3 3"/>
@@ -52,7 +52,7 @@
 
   <!-- Explosion warning -->
   <rect x="55" y="285" width="295" height="50" rx="8" fill="#ea4335"/>
-  <text x="202" y="308" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">💥 上下文爆炸</text>
+  <text x="202" y="308" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">上下文爆炸</text>
   <text x="202" y="326" text-anchor="middle" font-size="11" fill="#ffd6d3">16+ 工具 Schema 占用大量 Token</text>
 
   <!-- Stats -->
@@ -65,11 +65,11 @@
   <text x="280" y="383" text-anchor="middle" font-size="14" font-weight="700" fill="#ea4335">↓ 30%+</text>
 
   <text x="202" y="415" text-anchor="middle" font-size="11" fill="#5f6368" font-style="italic">无论是否使用，全部预加载</text>
-  <text x="202" y="438" text-anchor="middle" font-size="20">😦</text>
+  <text x="202" y="438" text-anchor="middle" font-size="12" fill="#ea4335" font-weight="700">低效</text>
 
   <!-- ===== RIGHT: With deferred loading (两步调用) ===== -->
   <rect x="425" y="92" width="345" height="388" rx="12" fill="#e6f4ea" stroke="#34a853" stroke-width="1.5" opacity="0.5"/>
-  <text x="597" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#34a853">✅ 延迟加载 (按需)</text>
+  <text x="597" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#34a853">延迟加载 (按需)</text>
 
   <!-- Step 1: ToolSearch -->
   <rect x="450" y="138" width="295" height="48" rx="8" fill="#1a73e8"/>

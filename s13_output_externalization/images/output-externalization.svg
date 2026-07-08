@@ -31,7 +31,7 @@
   <!-- RAM icon header -->
   <rect x="40" y="110" width="280" height="38" rx="12" fill="#1a73e8"/>
   <rect x="40" y="130" width="280" height="18" fill="#1a73e8"/>
-  <text x="180" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">⚡ 上下文窗口 (RAM)</text>
+  <text x="180" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">上下文窗口 (RAM)</text>
 
   <!-- Small content -->
   <text x="60" y="170" font-size="12" font-weight="600" fill="#1a73e8">内容 (精简)</text>
@@ -64,12 +64,12 @@
   <rect x="475" y="110" width="285" height="200" rx="12" fill="url(#disk-grad)" stroke="#34a853" stroke-width="2"/>
   <rect x="475" y="110" width="285" height="38" rx="12" fill="#34a853"/>
   <rect x="475" y="130" width="285" height="18" fill="#34a853"/>
-  <text x="617" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">💾 磁盘 (Swap)</text>
+  <text x="617" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">磁盘 (Swap)</text>
 
   <!-- File content -->
   <text x="495" y="170" font-size="12" font-weight="600" fill="#137333">完整工具输出</text>
   <rect x="495" y="180" width="245" height="72" rx="6" fill="#ffffff" stroke="#34a853" stroke-width="1.5"/>
-  <text x="505" y="197" font-size="10" fill="#202124" font-family="monospace">📄 tool-results/abc123.txt</text>
+  <text x="505" y="197" font-size="10" fill="#202124" font-family="monospace">tool-results/abc123.txt</text>
   <text x="505" y="214" font-size="9" fill="#5f6368" font-family="monospace">line 1: Reading file /src/app.py</text>
   <text x="505" y="228" font-size="9" fill="#5f6368" font-family="monospace">line 2: import os, sys</text>
   <text x="505" y="242" font-size="9" fill="#5f6368" font-family="monospace">line 3: def main():</text>

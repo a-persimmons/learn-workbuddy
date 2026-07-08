@@ -84,7 +84,7 @@
   <text x="260" y="442" text-anchor="middle" font-size="13" fill="white" font-weight="bold">✓ Trust (信任 → 合并工具池)</text>
 
   <rect x="430" y="420" width="220" height="35" rx="8" fill="#ea4335"/>
-  <text x="540" y="442" text-anchor="middle" font-size="13" fill="white" font-weight="bold">✗ Deny (拒绝 → 不加载)</text>
+  <text x="540" y="442" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Deny (拒绝 → 不加载)</text>
 
   <!-- Bottom note -->
   <rect x="100" y="470" width="600" height="25" rx="4" fill="#202124"/>

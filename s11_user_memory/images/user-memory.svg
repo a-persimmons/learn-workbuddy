@@ -55,7 +55,7 @@
 
   <!-- 跨项目 label -->
   <rect x="50" y="280" width="700" height="40" rx="8" fill="#34a853" opacity="0.15" stroke="#34a853" stroke-width="2"/>
-  <text x="400" y="305" text-anchor="middle" font-size="15" fill="#34a853" font-weight="bold">⬆ 跨项目共享 (cross-project) — 无论在哪个工作区都会加载</text>
+  <text x="400" y="305" text-anchor="middle" font-size="15" fill="#34a853" font-weight="bold">跨项目共享 (cross-project) — 无论在哪个工作区都会加载</text>
 
   <!-- Arrows to 跨项目 -->
   <line x1="130" y1="250" x2="200" y2="280" stroke="#34a853" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
@@ -67,13 +67,13 @@
   <text x="400" y="350" text-anchor="middle" font-size="14" fill="#202124" font-weight="bold">多个项目工作区同时受益</text>
 
   <rect x="80" y="370" width="180" height="45" rx="8" fill="#7b1fa2" opacity="0.2" stroke="#7b1fa2" stroke-width="1.5"/>
-  <text x="170" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">📁 Project A (.workbuddy/)</text>
+  <text x="170" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">Project A (.workbuddy/)</text>
 
   <rect x="310" y="370" width="180" height="45" rx="8" fill="#7b1fa2" opacity="0.2" stroke="#7b1fa2" stroke-width="1.5"/>
-  <text x="400" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">📁 Project B (.workbuddy/)</text>
+  <text x="400" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">Project B (.workbuddy/)</text>
 
   <rect x="540" y="370" width="180" height="45" rx="8" fill="#7b1fa2" opacity="0.2" stroke="#7b1fa2" stroke-width="1.5"/>
-  <text x="630" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">📁 Project C (.workbuddy/)</text>
+  <text x="630" y="396" text-anchor="middle" font-size="12" fill="#7b1fa2" font-weight="bold">Project C (.workbuddy/)</text>
 
   <!-- Arrows from 跨项目 to projects -->
   <line x1="200" y1="320" x2="170" y2="370" stroke="#1a73e8" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
