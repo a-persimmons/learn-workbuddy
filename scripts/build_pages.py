@@ -196,13 +196,38 @@ def source_url_for(path: Path) -> str | None:
     return f"https://github.com/{repo}/blob/{ref_name}/{rel}"
 
 
-def build_nav(title_map: dict[Path, str], routes: dict[Path, str], base_path: str) -> str:
+def section_label(path: Path) -> str:
+    if path == ROOT / "README.md":
+        return "首页"
+    if path.match(str(ROOT / "s[0-9][0-9]_*" / "README.md")):
+        return "课程章节"
+    if path.parent == ROOT / "docs":
+        return "补充文档"
+    if "examples" in path.parts:
+        return "示例"
+    return "项目文档"
+
+
+def build_nav(title_map: dict[Path, str], routes: dict[Path, str], base_path: str, current_route: str) -> str:
     def link_item(label: str, route: str) -> str:
-        return f'<li><a href="{with_base_path(route, base_path)}">{html.escape(label)}</a></li>'
+        href = with_base_path(route, base_path)
+        active = " nav-link-active" if route == current_route else ""
+        return (
+            '<li><a class="nav-link'
+            + active
+            + '" href="'
+            + href
+            + '">'
+            + html.escape(label)
+            + "</a></li>"
+        )
 
     parts = [
         '<nav class="sidebar">',
-        f'<div class="brand"><a href="{with_base_path("/", base_path)}">learn-workbuddy</a></div>',
+        '<div class="brand-card">',
+        f'<a class="brand" href="{with_base_path("/", base_path)}">learn-workbuddy</a>',
+        '<p class="brand-copy">从 agent loop 到桌面 AI 助手架构的 24 章工程化教程。</p>',
+        "</div>",
         '<div class="nav-group"><div class="nav-title">开始阅读</div><ul>',
     ]
     quick_paths = [
@@ -254,11 +279,19 @@ def build_nav(title_map: dict[Path, str], routes: dict[Path, str], base_path: st
     return "\n".join(parts)
 
 
-def page_template(*, page_title: str, content: str, nav: str, source_url: str | None, base_path: str) -> str:
+def page_template(
+    *,
+    page_title: str,
+    content: str,
+    nav: str,
+    source_url: str | None,
+    base_path: str,
+    page_section: str,
+) -> str:
     source_html = ""
     if source_url:
         source_html = (
-            '<p class="source-link"><a href="'
+            '<p class="source-link"><a class="source-button" href="'
             + html.escape(source_url)
             + '" target="_blank" rel="noreferrer">查看源码</a></p>'
         )
@@ -288,7 +321,10 @@ def page_template(*, page_title: str, content: str, nav: str, source_url: str | 
     {nav}
     <main class="content-shell">
       <header class="page-header">
-        <h1>{html.escape(page_title)}</h1>
+        <div class="page-header-copy">
+          <span class="page-eyebrow">{html.escape(page_section)}</span>
+          <h1>{html.escape(page_title)}</h1>
+        </div>
         {source_html}
       </header>
       <article class="markdown-body">
@@ -308,126 +344,329 @@ def write_assets(output_dir: Path) -> None:
         """\
 :root {
   color-scheme: light;
-  --bg: #f6f8fb;
-  --panel: #ffffff;
-  --border: #d8dee9;
-  --text: #1f2937;
-  --muted: #6b7280;
+  --bg: #f4f7fb;
+  --bg-accent: rgba(96, 165, 250, 0.14);
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-strong: #ffffff;
+  --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+  --sidebar-border: rgba(148, 163, 184, 0.16);
+  --border: rgba(148, 163, 184, 0.22);
+  --text: #0f172a;
+  --muted: #5b6474;
+  --heading: #111827;
   --link: #2563eb;
+  --link-strong: #1d4ed8;
   --code-bg: #0f172a;
   --code-fg: #e2e8f0;
+  --code-inline-bg: #e8eefb;
+  --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
+  --shadow-strong: 0 28px 80px rgba(15, 23, 42, 0.14);
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
 }
 
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
+  background-image:
+    radial-gradient(circle at top left, var(--bg-accent), transparent 26rem),
+    radial-gradient(circle at right 12%, rgba(167, 139, 250, 0.12), transparent 24rem);
 }
-a { color: var(--link); text-decoration: none; }
-a:hover { text-decoration: underline; }
-.layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 100vh; }
+a {
+  color: var(--link);
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+a:hover { color: var(--link-strong); }
+.layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 28px;
+  min-height: 100vh;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px;
+}
 .sidebar {
   position: sticky;
-  top: 0;
+  top: 24px;
   align-self: start;
-  height: 100vh;
+  max-height: calc(100vh - 48px);
   overflow-y: auto;
-  padding: 24px 18px 48px;
-  background: #0f172a;
+  padding: 20px 16px 28px;
+  background: var(--sidebar-bg);
   color: #e5e7eb;
+  border: 1px solid var(--sidebar-border);
+  border-radius: 28px;
+  box-shadow: var(--shadow-strong);
+  backdrop-filter: blur(18px);
 }
-.brand a { color: #ffffff; font-size: 1.25rem; font-weight: 700; }
-.nav-group { margin-top: 24px; }
-.nav-title {
-  margin-bottom: 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.brand-card {
+  padding: 12px 10px 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+.brand {
+  display: inline-block;
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.brand-copy {
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
   color: #94a3b8;
 }
+.nav-group {
+  margin-top: 18px;
+  padding: 14px 10px 0;
+}
+.nav-title {
+  margin-bottom: 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
 .nav-group ul { margin: 0; padding: 0; list-style: none; }
-.nav-group li { margin: 0 0 8px; }
-.nav-group a { color: #dbeafe; line-height: 1.4; }
+.nav-group li { margin: 0 0 6px; }
+.nav-link {
+  display: block;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #dbeafe;
+  font-size: 0.93rem;
+  line-height: 1.45;
+}
+.nav-link:hover {
+  background: rgba(37, 99, 235, 0.16);
+  border-color: rgba(96, 165, 250, 0.28);
+  color: #ffffff;
+  text-decoration: none;
+}
+.nav-link-active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(147, 197, 253, 0.14));
+  border-color: rgba(125, 211, 252, 0.35);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
 .content-shell {
-  max-width: 1100px;
-  padding: 32px 40px 64px;
+  min-width: 0;
+  padding: 8px 8px 56px 0;
 }
 .page-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.page-header h1 { margin: 0; font-size: 2rem; }
-.source-link { margin: 0; color: var(--muted); }
-.markdown-body {
-  padding: 32px;
-  background: var(--panel);
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 28px 30px;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.72));
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px);
+}
+.page-header-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--link-strong);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.page-header h1 {
+  margin: 0;
+  color: var(--heading);
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+.source-link { margin: 0; color: var(--muted); }
+.source-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--link-strong);
+  font-weight: 600;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.08);
+}
+.source-button:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+.markdown-body {
+  max-width: 980px;
+  padding: 40px 42px 48px;
+  background: var(--panel-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  line-height: 1.82;
+  font-size: 1rem;
+}
+.markdown-body > *:first-child { margin-top: 0; }
+.markdown-body > *:last-child { margin-bottom: 0; }
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  color: var(--heading);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.markdown-body h1 { font-size: 2.2rem; margin: 0 0 1.2rem; }
+.markdown-body h2 {
+  margin-top: 2.6rem;
+  margin-bottom: 1rem;
+  padding-top: 0.2rem;
+  font-size: 1.55rem;
+}
+.markdown-body h3 {
+  margin-top: 1.8rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
+}
+.markdown-body p,
+.markdown-body li,
+.markdown-body td,
+.markdown-body th {
+  color: #334155;
+}
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.35rem;
+}
+.markdown-body li + li {
+  margin-top: 0.45rem;
+}
+.markdown-body hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
 }
 .markdown-body img {
   max-width: 100%;
   height: auto;
-  border-radius: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 }
 .markdown-body table {
   display: block;
   overflow-x: auto;
   width: 100%;
   border-collapse: collapse;
+  margin: 1.3rem 0;
+  border-radius: 16px;
+  background: #fbfdff;
 }
 .markdown-body th,
 .markdown-body td {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   vertical-align: top;
 }
+.markdown-body th {
+  background: #f5f8ff;
+  font-weight: 700;
+}
 .markdown-body pre {
   overflow-x: auto;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 18px 20px;
+  border-radius: 18px;
   background: var(--code-bg);
   color: var(--code-fg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .markdown-body code {
   font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 0.95em;
 }
 .markdown-body :not(pre) > code {
   padding: 0.15rem 0.35rem;
-  border-radius: 6px;
-  background: #e5e7eb;
-  color: #111827;
+  border-radius: 8px;
+  background: var(--code-inline-bg);
+  color: #1e3a8a;
 }
 .markdown-body blockquote {
-  margin: 1rem 0;
-  padding: 0.1rem 1rem;
-  border-left: 4px solid #93c5fd;
+  margin: 1.4rem 0;
+  padding: 1rem 1.1rem 1rem 1.2rem;
+  border-left: 4px solid #60a5fa;
+  border-radius: 0 14px 14px 0;
   color: #334155;
-  background: #eff6ff;
+  background: linear-gradient(90deg, rgba(219, 234, 254, 0.95), rgba(239, 246, 255, 0.7));
 }
 .mermaid {
   overflow-x: auto;
+  margin: 1.8rem 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.96));
+}
+.markdown-body a {
+  font-weight: 600;
+}
+.markdown-body a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.markdown-body strong {
+  color: #0f172a;
+}
+.markdown-body .toc {
   margin: 1.5rem 0;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #f8fbff;
 }
 @media (max-width: 980px) {
-  .layout { grid-template-columns: 1fr; }
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
   .sidebar {
     position: static;
-    height: auto;
+    max-height: none;
+    border-radius: 22px;
   }
   .content-shell {
-    padding: 20px 16px 40px;
+    padding: 0 0 40px;
+  }
+  .page-header {
+    padding: 22px 20px;
+  }
+  .page-header h1 {
+    font-size: 1.7rem;
   }
   .markdown-body {
-    padding: 20px;
-    border-radius: 16px;
+    padding: 24px 20px 30px;
+    border-radius: 20px;
   }
 }
 """,
@@ -455,13 +694,13 @@ def build_site(output_dir: Path = DEFAULT_OUTPUT) -> Path:
     markdown_sources = iter_markdown_sources()
     routes = {path.resolve(): route_for_markdown(path.resolve()) for path in markdown_sources}
     title_map = {path.resolve(): read_title(path.resolve()) for path in markdown_sources}
-    nav = build_nav(title_map, routes, base_path)
-
     copy_static_files(output_dir)
     write_assets(output_dir)
 
     for path in markdown_sources:
         source = path.resolve()
+        current_route = routes[source]
+        nav = build_nav(title_map, routes, base_path, current_route)
         text = source.read_text(encoding="utf-8")
         rewritten = rewrite_markdown_links(text, source, routes, base_path)
         content = build_markdown_html(rewritten)
@@ -471,6 +710,7 @@ def build_site(output_dir: Path = DEFAULT_OUTPUT) -> Path:
             nav=nav,
             source_url=source_url_for(source),
             base_path=base_path,
+            page_section=section_label(source),
         )
         destination = output_path_for_route(output_dir, routes[source])
         destination.parent.mkdir(parents=True, exist_ok=True)
