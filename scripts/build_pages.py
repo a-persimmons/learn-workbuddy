@@ -100,6 +100,36 @@ def to_root_relative(path: Path) -> str:
     return "/" + path.relative_to(ROOT).as_posix()
 
 
+def normalize_base_path(value: str) -> str:
+    value = value.strip()
+    if not value or value == "/":
+        return "/"
+    return "/" + value.strip("/") + "/"
+
+
+def detect_base_path() -> str:
+    override = os.environ.get("PAGES_BASE_PATH") or os.environ.get("SITE_BASE_PATH")
+    if override:
+        return normalize_base_path(override)
+
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo or "/" not in repo:
+        return "/"
+
+    owner, repo_name = repo.split("/", 1)
+    if repo_name.lower() == f"{owner}.github.io".lower():
+        return "/"
+    return normalize_base_path(repo_name)
+
+
+def with_base_path(path: str, base_path: str) -> str:
+    if not path.startswith("/") or base_path == "/":
+        return path
+    if path == "/":
+        return base_path
+    return base_path.rstrip("/") + path
+
+
 def resolve_local_target(source: Path, target: str) -> Path | None:
     candidate = (source.parent / target).resolve()
     try:
@@ -109,7 +139,7 @@ def resolve_local_target(source: Path, target: str) -> Path | None:
     return candidate
 
 
-def rewrite_link_target(target: str, source: Path, routes: dict[Path, str]) -> str:
+def rewrite_link_target(target: str, source: Path, routes: dict[Path, str], base_path: str = "/") -> str:
     target = target.strip()
     if not target or is_external_target(target) or target.startswith("#"):
         return target
@@ -117,7 +147,7 @@ def rewrite_link_target(target: str, source: Path, routes: dict[Path, str]) -> s
     if not path_part:
         return anchor or target
     if path_part.startswith("/"):
-        return path_part + anchor
+        return with_base_path(path_part, base_path) + anchor
 
     resolved = resolve_local_target(source, path_part)
     if resolved is None:
@@ -126,25 +156,25 @@ def rewrite_link_target(target: str, source: Path, routes: dict[Path, str]) -> s
     if resolved.is_dir():
         readme = resolved / "README.md"
         if readme in routes:
-            return routes[readme] + anchor
-        return to_root_relative(resolved).rstrip("/") + "/" + anchor
+            return with_base_path(routes[readme], base_path) + anchor
+        return with_base_path(to_root_relative(resolved).rstrip("/") + "/", base_path) + anchor
 
     if resolved in routes:
-        return routes[resolved] + anchor
+        return with_base_path(routes[resolved], base_path) + anchor
 
     if resolved.exists():
-        return to_root_relative(resolved) + anchor
+        return with_base_path(to_root_relative(resolved), base_path) + anchor
 
     if resolved.suffix == "" and resolved.with_suffix(".md") in routes:
-        return routes[resolved.with_suffix(".md")] + anchor
+        return with_base_path(routes[resolved.with_suffix(".md")], base_path) + anchor
 
     return target
 
 
-def rewrite_markdown_links(text: str, source: Path, routes: dict[Path, str]) -> str:
+def rewrite_markdown_links(text: str, source: Path, routes: dict[Path, str], base_path: str = "/") -> str:
     def replace(match: re.Match[str]) -> str:
         prefix, target, suffix = match.groups()
-        return prefix + rewrite_link_target(target, source, routes) + suffix
+        return prefix + rewrite_link_target(target, source, routes, base_path) + suffix
 
     return MARKDOWN_LINK_RE.sub(replace, text)
 
@@ -166,13 +196,13 @@ def source_url_for(path: Path) -> str | None:
     return f"https://github.com/{repo}/blob/{ref_name}/{rel}"
 
 
-def build_nav(title_map: dict[Path, str], routes: dict[Path, str]) -> str:
+def build_nav(title_map: dict[Path, str], routes: dict[Path, str], base_path: str) -> str:
     def link_item(label: str, route: str) -> str:
-        return f'<li><a href="{route}">{html.escape(label)}</a></li>'
+        return f'<li><a href="{with_base_path(route, base_path)}">{html.escape(label)}</a></li>'
 
     parts = [
         '<nav class="sidebar">',
-        '<div class="brand"><a href="/">learn-workbuddy</a></div>',
+        f'<div class="brand"><a href="{with_base_path("/", base_path)}">learn-workbuddy</a></div>',
         '<div class="nav-group"><div class="nav-title">开始阅读</div><ul>',
     ]
     quick_paths = [
@@ -224,7 +254,7 @@ def build_nav(title_map: dict[Path, str], routes: dict[Path, str]) -> str:
     return "\n".join(parts)
 
 
-def page_template(*, page_title: str, content: str, nav: str, source_url: str | None) -> str:
+def page_template(*, page_title: str, content: str, nav: str, source_url: str | None, base_path: str) -> str:
     source_html = ""
     if source_url:
         source_html = (
@@ -238,7 +268,7 @@ def page_template(*, page_title: str, content: str, nav: str, source_url: str | 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{html.escape(page_title)} | learn-workbuddy</title>
-  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="{with_base_path('/assets/site.css', base_path)}">
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
     mermaid.initialize({{ startOnLoad: false, theme: "neutral" }});
@@ -421,10 +451,11 @@ def build_site(output_dir: Path = DEFAULT_OUTPUT) -> Path:
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    base_path = detect_base_path()
     markdown_sources = iter_markdown_sources()
     routes = {path.resolve(): route_for_markdown(path.resolve()) for path in markdown_sources}
     title_map = {path.resolve(): read_title(path.resolve()) for path in markdown_sources}
-    nav = build_nav(title_map, routes)
+    nav = build_nav(title_map, routes, base_path)
 
     copy_static_files(output_dir)
     write_assets(output_dir)
@@ -432,13 +463,14 @@ def build_site(output_dir: Path = DEFAULT_OUTPUT) -> Path:
     for path in markdown_sources:
         source = path.resolve()
         text = source.read_text(encoding="utf-8")
-        rewritten = rewrite_markdown_links(text, source, routes)
+        rewritten = rewrite_markdown_links(text, source, routes, base_path)
         content = build_markdown_html(rewritten)
         page = page_template(
             page_title=title_map[source],
             content=content,
             nav=nav,
             source_url=source_url_for(source),
+            base_path=base_path,
         )
         destination = output_path_for_route(output_dir, routes[source])
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -458,7 +490,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     output_dir = build_site(args.output)
-    print(f"Built pages site at {output_dir}")
+    print(f"Built pages site at {output_dir} (base path: {detect_base_path()})")
 
 
 if __name__ == "__main__":
