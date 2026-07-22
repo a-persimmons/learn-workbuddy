@@ -2,6 +2,7 @@
 # up front keeps the README promise true: clone, pip install, fill a key,
 # then run any documented provider path.
 anthropic>=0.25.0
+markdown>=3.6
 openai>=1.40.0
 python-dotenv>=1.0.0
 pyyaml>=6.0
