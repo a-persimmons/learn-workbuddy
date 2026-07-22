@@ -208,6 +208,120 @@ def section_label(path: Path) -> str:
     return "项目文档"
 
 
+def chapter_paths(routes: dict[Path, str]) -> list[Path]:
+    return sorted(path for path in routes if path.match(str(ROOT / "s[0-9][0-9]_*" / "README.md")))
+
+
+def chapter_number(path: Path) -> str:
+    return path.parent.name[1:3]
+
+
+def chapter_title_only(title: str) -> str:
+    if ": " in title:
+        return title.split(": ", 1)[1]
+    return title
+
+
+def build_home_hero(title_map: dict[Path, str], routes: dict[Path, str], base_path: str) -> str:
+    key_links = [
+        (ROOT / "docs" / "learning-guide.md", "Start Here", "5 分钟进入推荐阅读顺序"),
+        (ROOT / "docs" / "visual-tour.md", "Visual Tour", "先建立全局心智模型，再逐章深入"),
+        (ROOT / "docs" / "chapter-map.md", "Chapter Map", "按问题域定位每一章的职责"),
+        (ROOT / "examples" / "full_tour" / "README.md", "Full Tour", "一条链路跑通完整 harness"),
+    ]
+
+    feature_cards: list[str] = []
+    for path, label, description in key_links:
+        if path not in routes:
+            continue
+        feature_cards.append(
+            '<a class="feature-card" href="'
+            + with_base_path(routes[path], base_path)
+            + '"><span>'
+            + html.escape(label)
+            + "</span><strong>"
+            + html.escape(title_map[path])
+            + "</strong><p>"
+            + html.escape(description)
+            + "</p></a>"
+        )
+
+    chapter_cards: list[str] = []
+    for path in chapter_paths(routes):
+        chapter_cards.append(
+            '<a class="chapter-card" href="'
+            + with_base_path(routes[path], base_path)
+            + '"><span class="chapter-kicker">s'
+            + chapter_number(path)
+            + "</span><strong>"
+            + html.escape(chapter_title_only(title_map[path]))
+            + "</strong></a>"
+        )
+
+    return (
+        '<section class="home-hero">'
+        '<div class="hero-copy">'
+        '<span class="hero-kicker">Desktop Agent Systems, rebuilt from first principles</span>'
+        '<h1>从 0 手搓桌面 AI 助手，不靠模板，不靠黑盒。</h1>'
+        '<p class="hero-dek">把 WorkBuddy 拆成 24 个工程机制，按 sidecar、session、memory、tooling、permissions、audit 逐层复刻。这一版页面不再只是 README 容器，而是按现代高端技术内容站的阅读方式重新组织。</p>'
+        '<div class="hero-actions">'
+        '<a class="primary-button" href="'
+        + with_base_path(routes.get(ROOT / "docs" / "learning-guide.md", "/"), base_path)
+        + '">开始阅读</a>'
+        '<a class="secondary-button" href="'
+        + with_base_path(routes.get(ROOT / "docs" / "visual-tour.md", "/"), base_path)
+        + '">先看全局图</a>'
+        "</div>"
+        '<div class="hero-stats">'
+        '<div class="stat-card"><span>24</span><p>章节，从 agent loop 到 sidecar、audit 与 automation。</p></div>'
+        '<div class="stat-card"><span>27</span><p>架构图与流程图，帮助建立稳定心智模型。</p></div>'
+        '<div class="stat-card"><span>3+</span><p>Provider 路径，覆盖多模型接入和真实工程约束。</p></div>'
+        "</div></div>"
+        '<div class="hero-panel"><div class="hero-panel-copy"><span>Reading Modes</span><p>从导读、全局图、章节地图到 full tour，把复杂 desktop agent 系统拆成可连续阅读的结构。</p></div>'
+        '<div class="feature-grid">'
+        + "".join(feature_cards)
+        + "</div></div></section>"
+        '<section class="chapter-grid-section"><div class="section-heading"><span>24 章课程</span><h2>像产品文档一样导航，像专题长文一样阅读。</h2></div><div class="chapter-grid">'
+        + "".join(chapter_cards)
+        + "</div></section>"
+    )
+
+
+def build_page_context(path: Path, routes: dict[Path, str], title_map: dict[Path, str], base_path: str) -> str:
+    cards = [
+        '<div class="context-card"><span>Section</span><strong>'
+        + html.escape(section_label(path))
+        + "</strong></div>"
+    ]
+    if path.match(str(ROOT / "s[0-9][0-9]_*" / "README.md")):
+        chapters = chapter_paths(routes)
+        index = chapters.index(path)
+        cards.append(
+            '<div class="context-card"><span>Chapter</span><strong>s'
+            + chapter_number(path)
+            + " / 24</strong></div>"
+        )
+        if index > 0:
+            prev_path = chapters[index - 1]
+            cards.append(
+                '<a class="context-link" href="'
+                + with_base_path(routes[prev_path], base_path)
+                + '"><span>上一篇</span><strong>'
+                + html.escape(title_map[prev_path])
+                + "</strong></a>"
+            )
+        if index < len(chapters) - 1:
+            next_path = chapters[index + 1]
+            cards.append(
+                '<a class="context-link" href="'
+                + with_base_path(routes[next_path], base_path)
+                + '"><span>下一篇</span><strong>'
+                + html.escape(title_map[next_path])
+                + "</strong></a>"
+            )
+    return '<aside class="page-context">' + "".join(cards) + "</aside>"
+
+
 def build_nav(title_map: dict[Path, str], routes: dict[Path, str], base_path: str, current_route: str) -> str:
     def link_item(label: str, route: str) -> str:
         href = with_base_path(route, base_path)
@@ -241,7 +355,7 @@ def build_nav(title_map: dict[Path, str], routes: dict[Path, str], base_path: st
             parts.append(link_item(title_map[path], routes[path]))
     parts.append("</ul></div>")
 
-    chapters = sorted(path for path in routes if path.match(str(ROOT / "s[0-9][0-9]_*" / "README.md")))
+    chapters = chapter_paths(routes)
     parts.append('<div class="nav-group"><div class="nav-title">24 章课程</div><ul>')
     for path in chapters:
         parts.append(link_item(title_map[path], routes[path]))
@@ -287,6 +401,9 @@ def page_template(
     source_url: str | None,
     base_path: str,
     page_section: str,
+    current_path: Path,
+    routes: dict[Path, str],
+    title_map: dict[Path, str],
 ) -> str:
     source_html = ""
     if source_url:
@@ -295,6 +412,17 @@ def page_template(
             + html.escape(source_url)
             + '" target="_blank" rel="noreferrer">查看源码</a></p>'
         )
+    hero_html = ""
+    context_html = ""
+    article_class = "markdown-body"
+    content_shell_class = "content-shell"
+    if current_path == ROOT / "README.md":
+        hero_html = build_home_hero(title_map, routes, base_path)
+        article_class += " markdown-home"
+        content_shell_class += " content-home"
+    else:
+        context_html = build_page_context(current_path, routes, title_map, base_path)
+        content_shell_class += " content-doc"
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -319,7 +447,7 @@ def page_template(
 <body>
   <div class="layout">
     {nav}
-    <main class="content-shell">
+    <main class="{content_shell_class}">
       <header class="page-header">
         <div class="page-header-copy">
           <span class="page-eyebrow">{html.escape(page_section)}</span>
@@ -327,9 +455,13 @@ def page_template(
         </div>
         {source_html}
       </header>
-      <article class="markdown-body">
-        {content}
-      </article>
+      {hero_html}
+      <div class="page-frame">
+        <article class="{article_class}">
+          {content}
+        </article>
+        {context_html}
+      </div>
     </main>
   </div>
 </body>
@@ -462,6 +594,12 @@ a:hover { color: var(--link-strong); }
   min-width: 0;
   padding: 8px 8px 56px 0;
 }
+.content-home {
+  max-width: 1240px;
+}
+.content-doc {
+  max-width: 1320px;
+}
 .page-header {
   display: flex;
   flex-wrap: wrap;
@@ -475,6 +613,9 @@ a:hover { color: var(--link-strong); }
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.72));
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(16px);
+}
+.content-home .page-header {
+  display: none;
 }
 .page-header-copy {
   display: flex;
@@ -517,6 +658,242 @@ a:hover { color: var(--link-strong); }
   text-decoration: none;
   transform: translateY(-1px);
 }
+.page-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 980px) 260px;
+  gap: 24px;
+  align-items: start;
+}
+.page-context {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.context-card,
+.context-link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 15px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: var(--shadow-soft);
+}
+.context-card span,
+.context-link span {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.context-card strong,
+.context-link strong {
+  color: var(--heading);
+  line-height: 1.35;
+}
+.context-link:hover {
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+  gap: 26px;
+  margin-bottom: 28px;
+}
+.hero-copy,
+.hero-panel {
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.7));
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+.hero-copy {
+  padding: 42px 42px 34px;
+}
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: #334155;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hero-copy h1 {
+  margin: 18px 0 14px;
+  max-width: 12ch;
+  font-size: clamp(3rem, 5.3vw, 5.4rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+  color: #0b1220;
+}
+.hero-dek {
+  max-width: 56ch;
+  margin: 0;
+  color: #475569;
+  font-size: 1.08rem;
+  line-height: 1.9;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+}
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.primary-button {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.14);
+}
+.secondary-button {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.78);
+  color: #0f172a;
+}
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 28px;
+}
+.stat-card {
+  padding: 16px 16px 14px;
+  border-radius: 20px;
+  background: rgba(248, 250, 252, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.stat-card span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+.stat-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.55;
+}
+.hero-panel {
+  padding: 24px;
+}
+.hero-panel-copy span,
+.section-heading span {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hero-panel-copy p {
+  margin: 14px 0 0;
+  color: #0f172a;
+  font-size: 1.35rem;
+  line-height: 1.45;
+  letter-spacing: -0.03em;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 168px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(248, 250, 252, 0.95);
+}
+.feature-card span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.feature-card strong {
+  font-size: 1.02rem;
+  line-height: 1.35;
+  color: #0f172a;
+}
+.feature-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.65;
+}
+.chapter-grid-section {
+  margin-bottom: 28px;
+  padding: 8px 4px 0;
+}
+.section-heading {
+  margin-bottom: 18px;
+}
+.section-heading h2 {
+  margin: 10px 0 0;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+}
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.chapter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 136px;
+  padding: 18px 18px 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+}
+.chapter-card:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+  box-shadow: 0 22px 42px rgba(15, 23, 42, 0.1);
+}
+.chapter-kicker {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.chapter-card strong {
+  font-size: 1.03rem;
+  line-height: 1.45;
+  color: #0f172a;
+}
 .markdown-body {
   max-width: 980px;
   padding: 40px 42px 48px;
@@ -529,6 +906,7 @@ a:hover { color: var(--link-strong); }
 }
 .markdown-body > *:first-child { margin-top: 0; }
 .markdown-body > *:last-child { margin-bottom: 0; }
+.markdown-body > h1:first-child { display: none; }
 .markdown-body h1,
 .markdown-body h2,
 .markdown-body h3,
@@ -658,6 +1036,25 @@ a:hover { color: var(--link-strong); }
   .content-shell {
     padding: 0 0 40px;
   }
+  .page-frame {
+    grid-template-columns: 1fr;
+  }
+  .page-context {
+    position: static;
+  }
+  .home-hero,
+  .feature-grid,
+  .chapter-grid,
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+  .hero-copy {
+    padding: 28px 24px 26px;
+  }
+  .hero-copy h1 {
+    max-width: none;
+    font-size: 2.4rem;
+  }
   .page-header {
     padding: 22px 20px;
   }
@@ -711,6 +1108,9 @@ def build_site(output_dir: Path = DEFAULT_OUTPUT) -> Path:
             source_url=source_url_for(source),
             base_path=base_path,
             page_section=section_label(source),
+        current_path=source,
+        routes=routes,
+        title_map=title_map,
         )
         destination = output_path_for_route(output_dir, routes[source])
         destination.parent.mkdir(parents=True, exist_ok=True)
